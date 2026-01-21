@@ -150,4 +150,40 @@ function clearForm() {
   ajudante.value = "";
   tipo.value = "entrada";
 }
+// Exporta PDF mensal
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let entradas = document.getElementById("entradaBody").innerText;
+  let saidas = document.getElementById("saidaBody").innerText;
+  let totalEntrada = document.getElementById("totalEntrada").innerText;
+  let totalSaida = document.getElementById("totalSaida").innerText;
+  let lucro = document.getElementById("lucro").innerText;
+
+  doc.setFontSize(16);
+  doc.text("Resumo Mensal", 10, 10);
+
+  doc.setFontSize(12);
+  doc.text(`Entradas:\n${entradas}`, 10, 20);
+  doc.text(`Saídas:\n${saidas}`, 10, 60);
+  doc.text(`Faturamento: R$ ${totalEntrada}`, 10, 100);
+  doc.text(`Despesas: R$ ${totalSaida}`, 10, 110);
+  doc.text(`Lucro Líquido: R$ ${lucro}`, 10, 120);
+
+  doc.save("resumo_mensal.pdf");
+}
+
+// Exporta PDF anual
+function exportPDFAnual() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Aqui você pode iterar sobre os meses se tiver os dados separados por mês
+  doc.setFontSize(16);
+  doc.text("Resumo Anual", 10, 10);
+
+  doc.save("resumo_anual.pdf");
+}
+
 
