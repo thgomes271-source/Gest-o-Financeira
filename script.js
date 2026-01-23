@@ -137,87 +137,200 @@ window.saveMeta = async () => {
 };
 
 // --- PDF (MENSAL E ANUAL) ---
+// --- FUNÇÕES DE PDF (MODELO FIEL AOS DOCUMENTOS ENVIADOS) ---
 window.pdf = {
     mensal: async () => {
         const { jsPDF } = window.jspdf;
-        const docPDF = new jsPDF();
-        
+        const docPDF = new jsPDF("p", "mm", "a4");
         const mes = monthSelect.value;
-        const totalE = document.getElementById("totalEntrada").textContent;
-        const totalS = document.getElementById("totalSaida").textContent;
-        const liq = document.getElementById("lucro").textContent;
+        const meta = parseFloat(document.getElementById("metaInput").value) || 0;
 
+        // 1. Busca os dados atuais do Firestore para garantir precisão
+        const q = query(collection(db, "lancamentos"), 
+                  where("userId", "==", auth.currentUser.uid), 
+                  where("mes", "==", mes));
+        const snap = await getDocs(q);
+        
+        let entradas = [];
+        let saidas = [];
+        let totalE = 0;
+        let totalS = 0;
+
+        snap.forEach(d => {
+            const item = d.data();
+            if (item.tipo === "entrada") {
+                entradas.push(item);
+                totalE += item.valor;
+            } else {
+                saidas.push(item);
+                totalS += item.valor;
+            }
+        });
+
+        let y = 20;
+
+        // Título 
         docPDF.setFont("helvetica", "bold");
-        docPDF.text(`RELATÓRIO MENSAL - ${mes.toUpperCase()}`, 105, 20, { align: "center" });
-        
+        docPDF.setFontSize(14);
+        docPDF.text("RELATÓRIO FINANCEIRO MENSAL", 105, y, { align: "center" });
+        y += 12;
+
+        // Cabeçalho de Referência 
+        docPDF.setFontSize(10);
         docPDF.setFont("helvetica", "normal");
-        docPDF.text(`Faturamento: R$ ${totalE}`, 20, 40);
-        docPDF.text(`Despesas: R$ ${totalS}`, 20, 50);
-        docPDF.text(`Lucro Líquido: R$ ${liq}`, 20, 60);
-        
-        docPDF.save(`Relatorio_Mensal_${mes}.pdf`);
+        docPDF.text(`Mês de Referência: ${mes}`, 15, y);
+        y += 6;
+        docPDF.text(`Meta Mensal: R$ ${meta.toFixed(2)}`, 15, y);
+        y += 6;
+        docPDF.line(15, y, 195, y);
+        y += 10;
+
+        // Resumo 
+        docPDF.setFont("helvetica", "bold");
+        docPDF.text("RESUMO FINANCEIRO", 15, y);
+        y += 8;
+        docPDF.setFont("helvetica", "normal");
+        docPDF.text(`Faturamento Total: R$ ${totalE.toFixed(2)}`, 15, y);
+        y += 6;
+        docPDF.text(`Total de Despesas: R$ ${totalS.toFixed(2)}`, 15, y);
+        y += 6;
+        docPDF.text(`Lucro Líquido: R$ ${(totalE - totalS).toFixed(2)}`, 15, y);
+        y += 10;
+        docPDF.line(15, y, 195, y);
+        y += 10;
+
+        // Tabela Entradas [cite: 11, 12]
+        docPDF.setFont("helvetica", "bold");
+        docPDF.text("ENTRADAS", 15, y);
+        y += 7;
+        docPDF.setFontSize(9);
+        docPDF.text("Data", 15, y);
+        docPDF.text("Cliente", 40, y);
+        docPDF.text("Descrição", 85, y);
+        docPDF.text("Valor", 145, y);
+        docPDF.text("Pagamento", 170, y);
+        y += 3;
+        docPDF.line(15, y, 195, y);
+        y += 6;
+
+        docPDF.setFont("helvetica", "normal");
+        entradas.forEach(item => {
+            docPDF.text(item.data || "-", 15, y);
+            docPDF.text(item.cliente || "-", 40, y);
+            docPDF.text(item.descricao || "-", 85, y);
+            docPDF.text(`R$ ${item.valor.toFixed(2)}`, 145, y);
+            docPDF.text(item.pagamento || "-", 170, y);
+            y += 6;
+        });
+
+        // Tabela Saídas 
+        y += 10;
+        docPDF.setFont("helvetica", "bold");
+        docPDF.text("SAÍDAS", 15, y);
+        y += 7;
+        docPDF.text("Data", 15, y);
+        docPDF.text("Origem", 40, y);
+        docPDF.text("Descrição", 85, y);
+        docPDF.text("Valor", 145, y);
+        docPDF.text("Pagamento", 170, y);
+        y += 3;
+        docPDF.line(15, y, 195, y);
+        y += 6;
+
+        docPDF.setFont("helvetica", "normal");
+        saidas.forEach(item => {
+            docPDF.text(item.data || "-", 15, y);
+            docPDF.text(item.cliente || "-", 40, y); // Cliente aqui atua como Origem
+            docPDF.text(item.descricao || "-", 85, y);
+            docPDF.text(`R$ ${item.valor.toFixed(2)}`, 145, y);
+            docPDF.text(item.pagamento || "-", 170, y);
+            y += 6;
+        });
+
+        // Rodapé e Assinatura 
+        y = 270;
+        docPDF.setFontSize(8);
+        docPDF.text("Documento gerado automaticamente para fins de controle financeiro e arquivamento.", 15, y);
+        y += 10;
+        docPDF.setFontSize(10);
+        docPDF.text("Assinatura do responsável: __________________________________________", 15, y);
+
+        docPDF.save(`Relatorio_Financeiro_${mes}.pdf`);
     },
 
     anual: async () => {
         const { jsPDF } = window.jspdf;
-        const docPDF = new jsPDF();
+        const docPDF = new jsPDF("p", "mm", "a4");
         
-        // 1. Buscar TODOS os lançamentos do usuário no ano
-        const q = query(collection(db, "lancamentos"), 
-                  where("userId", "==", auth.currentUser.uid));
-        
+        const q = query(collection(db, "lancamentos"), where("userId", "==", auth.currentUser.uid));
         const snap = await getDocs(q);
         
-        // 2. Criar um objeto para consolidar os valores por mês
-        const resumoAno = {};
-        months.forEach(m => resumoAno[m] = { e: 0, s: 0 });
+        const resumo = {};
+        months.forEach(m => resumo[m] = { e: 0, s: 0 });
+
+        let mesesComDados = 0;
+        let totalAcumulado = 0;
 
         snap.forEach(d => {
             const data = d.data();
-            if (resumoAno[data.mes]) {
-                if (data.tipo === "entrada") resumoAno[data.mes].e += data.valor;
-                else resumoAno[data.mes].s += data.valor;
+            if (resumo[data.mes]) {
+                if (data.tipo === "entrada") resumo[data.mes].e += data.valor;
+                else resumo[data.mes].s += data.valor;
             }
         });
 
-        // 3. Gerar o PDF
+        let y = 20;
+
+        // Título [cite: 1]
         docPDF.setFont("helvetica", "bold");
-        docPDF.setFontSize(16);
-        docPDF.text("RESUMO FINANCEIRO ANUAL", 105, 20, { align: "center" });
+        docPDF.setFontSize(14);
+        docPDF.text("RESUMO FINANCEIRO ANUAL", 105, y, { align: "center" });
+        y += 15;
+
+        // Média Mensal 
+        Object.values(resumo).forEach(v => { if(v.e > 0 || v.s > 0) mesesComDados++; });
+        const somaTotal = Object.values(resumo).reduce((acc, val) => acc + (val.e - val.s), 0);
+        const media = mesesComDados > 0 ? somaTotal / mesesComDados : 0;
 
         docPDF.setFontSize(10);
-        let y = 40;
-        
-        // Cabeçalho da Tabela
-        docPDF.text("Mês", 20, y);
-        docPDF.text("Entradas", 70, y);
-        docPDF.text("Saídas", 120, y);
-        docPDF.text("Saldo", 170, y);
-        docPDF.line(20, y + 2, 190, y + 2);
+        docPDF.setFont("helvetica", "normal");
+        docPDF.text(`Média Mensal: R$ ${media.toFixed(2)}`, 15, y);
         y += 10;
+
+        // Tabela Anual 
+        docPDF.setFont("helvetica", "bold");
+        docPDF.text("Mês", 15, y);
+        docPDF.text("Entradas", 70, y);
+        docPDF.text("Saídas", 115, y);
+        docPDF.text("Total", 160, y);
+        y += 3;
+        docPDF.line(15, y, 195, y);
+        y += 7;
 
         docPDF.setFont("helvetica", "normal");
-        let totalFinal = 0;
-
-        // Linhas dos Meses
         months.forEach(m => {
-            const saldo = resumoAno[m].e - resumoAno[m].s;
-            totalFinal += saldo;
-
-            docPDF.text(m, 20, y);
-            docPDF.text(`R$ ${resumoAno[m].e.toFixed(2)}`, 70, y);
-            docPDF.text(`R$ ${resumoAno[m].s.toFixed(2)}`, 120, y);
-            docPDF.text(`R$ ${saldo.toFixed(2)}`, 170, y);
-            
-            y += 8;
-            if (y > 280) { docPDF.addPage(); y = 20; } // Quebra de página se necessário
+            const totalMes = resumo[m].e - resumo[m].s;
+            docPDF.text(m, 15, y);
+            docPDF.text(`R$ ${resumo[m].e.toFixed(2)}`, 70, y);
+            docPDF.text(`R$ ${resumo[m].s.toFixed(2)}`, 115, y);
+            docPDF.text(`R$ ${totalMes.toFixed(2)}`, 160, y);
+            y += 6;
         });
 
-        docPDF.line(20, y, 190, y);
+        // Anotações 
         y += 10;
         docPDF.setFont("helvetica", "bold");
-        docPDF.text(`LUCRO ANUAL ACUMULADO: R$ ${totalFinal.toFixed(2)}`, 20, y);
+        docPDF.text("ANOTAÇÕES", 15, y);
+        y += 5;
+        for (let i = 0; i < 4; i++) {
+            y += 8;
+            docPDF.line(15, y, 195, y);
+        }
 
-        docPDF.save("Resumo_Anual_Financeiro.pdf");
+        // Assinatura 
+        y += 20;
+        docPDF.text("Assinatura do responsável: __________________________________________", 15, y);
+
+        docPDF.save("Resumo_Financeiro_Anual.pdf");
     }
 };
