@@ -133,9 +133,9 @@ async function carregarLancamentos() {
         }
     });
 
-    document.getElementById("totalEntrada").textContent = totE.toFixed(2);
-    document.getElementById("totalSaida").textContent = totS.toFixed(2);
-    document.getElementById("lucro").textContent = (totE - totS).toFixed(2);
+   // document.getElementById("totalEntrada").textContent = totE.toFixed(2);
+    //document.getElementById("totalSaida").textContent = totS.toFixed(2);
+    //document.getElementById("lucro").textContent = (totE - totS).toFixed(2);
 }
 
 window.deletar = async (id) => {
