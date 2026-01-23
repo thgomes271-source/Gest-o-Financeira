@@ -126,4 +126,16 @@ th, td {
     color: #e74c3c;
     cursor: pointer;
 }
+.btn-edit {
+    background: none;
+    border: none;
+    color: #3498db; /* Azul para edição */
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+.btn-edit:hover {
+    color: #2980b9;
+}
 
