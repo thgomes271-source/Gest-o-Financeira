@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyB7ugVILO8olKtzkCJI_7BRlzY6Qe0-rCM",
@@ -8,22 +8,21 @@ const firebaseConfig = {
     projectId: "gst-financeira"
 };
 
-// --- INICIALIZAÇÃO ---
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+window.db = db;
+window.getDocs = getDocs;
+window.collection = collection;
 
 // ELEMENTOS DE TELA
 const authSection = document.getElementById("auth");
 const appSection = document.getElementById("app");
 const monthSelect = document.getElementById("monthSelect");
-const metaProgress = document.getElementById("metaProgress");
-
-// --- EXPOSIÇÃO PARA O HTML (Crucial para o onclick funcionar) ---
-window.logout = () => signOut(auth);
 
 // --- AUTENTICAÇÃO ---
-document.getElementById("btnRegister")?.addEventListener("click", async () => {
+document.getElementById("btnRegister").addEventListener("click", async () => {
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
     try {
@@ -31,13 +30,15 @@ document.getElementById("btnRegister")?.addEventListener("click", async () => {
     } catch (e) { alert("Erro ao cadastrar: " + e.message); }
 });
 
-document.getElementById("btnLogin")?.addEventListener("click", async () => {
+document.getElementById("btnLogin").addEventListener("click", async () => {
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
     try {
         await signInWithEmailAndPassword(auth, email, pass);
     } catch (e) { alert("Erro ao entrar: " + e.message); }
 });
+
+window.logout = () => signOut(auth);
 
 onAuthStateChanged(auth, user => {
     if (user) {
@@ -52,7 +53,6 @@ onAuthStateChanged(auth, user => {
 
 // --- LÓGICA DE NEGÓCIO ---
 const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-let editId = null;
 
 function carregarDadosIniciais() {
     monthSelect.innerHTML = "";
@@ -67,10 +67,6 @@ function carregarDadosIniciais() {
 
 monthSelect.addEventListener("change", carregarLancamentos);
 
-
-
-// --- FUNÇÕES GLOBAIS ---
-
 window.addLancamento = async () => {
     const dados = {
         userId: auth.currentUser.uid,
@@ -84,122 +80,83 @@ window.addLancamento = async () => {
         status: document.getElementById("status").value,
         ajudante: parseFloat(document.getElementById("ajudante").value) || 0
     };
+
     try {
         await addDoc(collection(db, "lancamentos"), dados);
-        document.querySelectorAll(".form-grid input").forEach(i => i.value = "");
         carregarLancamentos();
-        alert("Adicionado!");
+        alert("Lançamento adicionado!");
     } catch (e) { console.error(e); }
 };
 
 async function carregarLancamentos() {
-    if (!auth.currentUser) return;
     const mesAtual = monthSelect.value;
-    
-    // Buscar Lançamentos
     const q = query(collection(db, "lancamentos"), 
               where("userId", "==", auth.currentUser.uid), 
               where("mes", "==", mesAtual));
-    const snap = await getDocs(q);
-    
-    // Buscar Meta
-    const metaDoc = await getDoc(doc(db, "metas", auth.currentUser.uid + "_" + mesAtual));
-    const valorMeta = metaDoc.exists() ? metaDoc.data().valor : 0;
-    document.getElementById("metaInput").value = valorMeta || "";
 
+    const snap = await getDocs(q);
+    const entradas = [];
+    const saidas = [];
     let totE = 0, totS = 0;
-    const entradaBody = document.getElementById("entradaBody");
-    const saidaBody = document.getElementById("saidaBody");
-    entradaBody.innerHTML = "";
-    saidaBody.innerHTML = "";
+
+    document.getElementById("entradaBody").innerHTML = "";
+    document.getElementById("saidaBody").innerHTML = "";
 
     snap.forEach(d => {
         const item = { id: d.id, ...d.data() };
-        const v = parseFloat(item.valor) || 0;
-        const row = `<tr>
-            <td>${formatarData(item.data)}</td>
-            <td>${item.cliente || "-"}</td>
-            <td>${item.descricao || "-"}</td>
-            <td>R$ ${v.toFixed(2)}</td>
-            <td>R$ ${Number(item.ajudante || 0).toFixed(2)}</td>
-            <td>${item.pagamento || "-"}</td>
-            <td><span class="status-${item.status.toLowerCase().replace(" ", "-")}">${item.status}</span></td>
-            <td>
-                <button class="btn-edit" onclick="prepararEdicao('${item.id}')"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button class="btn-delete" onclick="deletar('${item.id}')"><i class="fa-solid fa-trash"></i></button>
-            </td>
-        </tr>`;
-
-        if (item.tipo === "entrada") { totE += v; entradaBody.innerHTML += row; }
-        else { totS += v; saidaBody.innerHTML += row; }
+        // Substitua a parte da variável 'row' dentro do loop snap.forEach na função carregarLancamentos:
+        const dataFormatadaBR = formatarData(item.data);
+const row = `
+    <tr>
+        <td>${item.data || "-"}</td>
+        <td>${item.cliente || "-"}</td>
+        <td>${item.descricao || "-"}</td>
+        <td>R$ ${Number(item.valor).toFixed(2)}</td>
+        <td>R$ ${Number(item.ajudante || 0).toFixed(2)}</td>
+        <td>${item.pagamento || "-"}</td>
+        <td><span class="status-${item.status.toLowerCase().replace(" ", "-")}">${item.status || "-"}</span></td>
+        <td>
+            <button class="btn-edit" onclick="prepararEdicao('${item.id}')" title="Editar">
+                <i class="fa-solid fa-pen-to-square"> </i>
+            </button>
+            <button class="btn-delete" onclick="deletar('${item.id}')" title="Excluir">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </td>
+    </tr>
+`;
+        
+        if (item.tipo === "entrada") {
+            totE += item.valor;
+            document.getElementById("entradaBody").innerHTML += row;
+            entradas.push(item);
+        } else {
+            totS += item.valor;
+            document.getElementById("saidaBody").innerHTML += row;
+            saidas.push(item);
+        }
     });
 
-    // ATUALIZAR CARDS
-    document.getElementById("totalEntrada").textContent = totE.toFixed(2);
-    document.getElementById("totalSaida").textContent = totS.toFixed(2);
-    const lucro = totE - totS;
-    const elLucro = document.getElementById("lucro");
-    elLucro.textContent = lucro.toFixed(2);
-    elLucro.parentElement.style.color = lucro >= 0 ? "#2ecc71" : "#e74c3c";
-
-    // ATUALIZAR BARRA DE META
-    const perc = valorMeta > 0 ? Math.min((totE / valorMeta) * 100, 100) : 0;
-    metaProgress.style.width = perc + "%";
-    metaProgress.style.backgroundColor = perc >= 100 ? "#2ecc71" : "#3498db";
+   // document.getElementById("totalEntrada").textContent = totE.toFixed(2);
+    //document.getElementById("totalSaida").textContent = totS.toFixed(2);
+    //document.getElementById("lucro").textContent = (totE - totS).toFixed(2);
 }
 
-window.saveMeta = async () => {
-    const val = parseFloat(document.getElementById("metaInput").value) || 0;
-    await setDoc(doc(db, "metas", auth.currentUser.uid + "_" + monthSelect.value), {
-        valor: val, mes: monthSelect.value, userId: auth.currentUser.uid
-    });
-    alert("Meta salva!");
-    carregarLancamentos();
-};
-
 window.deletar = async (id) => {
-    if(confirm("Excluir?")) {
+    if(confirm("Deseja excluir?")) {
         await deleteDoc(doc(db, "lancamentos", id));
         carregarLancamentos();
     }
 };
 
-window.prepararEdicao = async (id) => {
-    const snap = await getDoc(doc(db, "lancamentos", id));
-    if (snap.exists()) {
-        const d = snap.data();
-        editId = id;
-        document.getElementById("editData").value = d.data;
-        document.getElementById("editCliente").value = d.cliente;
-        document.getElementById("editDescricao").value = d.descricao;
-        document.getElementById("editValor").value = d.valor;
-        document.getElementById("editTipo").value = d.tipo;
-        document.getElementById("editPagamento").value = d.pagamento;
-        document.getElementById("editStatus").value = d.status;
-        document.getElementById("editAjudante").value = d.ajudante;
-        document.getElementById("editModal").style.display = "block";
-    }
-};
-
-window.salvarEdicao = async () => {
-    const dados = {
-        data: document.getElementById("editData").value,
-        cliente: document.getElementById("editCliente").value,
-        descricao: document.getElementById("editDescricao").value,
-        valor: parseFloat(document.getElementById("editValor").value) || 0,
-        tipo: document.getElementById("editTipo").value,
-        pagamento: document.getElementById("editPagamento").value,
-        status: document.getElementById("editStatus").value,
-        ajudante: parseFloat(document.getElementById("editAjudante").value) || 0
-    };
-    await updateDoc(doc(db, "lancamentos", editId), dados);
-    window.fecharModal();
-    carregarLancamentos();
-};
-
-window.fecharModal = () => {
-    document.getElementById("editModal").style.display = "none";
-    editId = null;
+window.saveMeta = async () => {
+    const meta = document.getElementById("metaInput").value;
+    await setDoc(doc(db, "metas", auth.currentUser.uid + "_" + monthSelect.value), {
+        valor: parseFloat(meta),
+        mes: monthSelect.value,
+        userId: auth.currentUser.uid
+    });
+    alert("Meta salva!");
 };
 
 // --- PDF (MENSAL E ANUAL) ---
@@ -399,6 +356,9 @@ window.pdf = {
         docPDF.save("Resumo_Financeiro_Anual.pdf");
     }
 };
+// Variável global para saber se estamos editando
+let editId = null;
+
 // 1. Função para carregar os dados no formulário
 window.prepararEdicao = async (id) => {
     try {
