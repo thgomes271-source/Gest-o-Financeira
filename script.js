@@ -1,3 +1,7 @@
+// ===============================
+// 🔗 ELEMENTOS
+// ===============================
+
 const entradaBody = document.getElementById("entradaBody");
 const saidaBody = document.getElementById("saidaBody");
 
@@ -15,14 +19,28 @@ const totalEntrada = document.getElementById("totalEntrada");
 const totalSaida = document.getElementById("totalSaida");
 const lucro = document.getElementById("lucro");
 
-let editIndex = null;
+const monthSelect = document.getElementById("monthSelect");
+
+// ===============================
+// 🔐 AUTH
+// ===============================
+
+function checkAuth() {
+  if (!window.userId) {
+    alert("Faça login primeiro");
+    return false;
+  }
+  return true;
+}
+
+// ===============================
+// 📅 MESES
+// ===============================
 
 const months = [
   "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
   "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
 ];
-
-const monthSelect = document.getElementById("monthSelect");
 
 months.forEach(m => {
   const opt = document.createElement("option");
@@ -32,28 +50,35 @@ months.forEach(m => {
 });
 
 monthSelect.value = months[new Date().getMonth()];
-monthSelect.addEventListener("change", loadMonth);
+monthSelect.addEventListener("change", () => {
+  carregarLancamentos();
+  carregarMeta();
+});
 
-function getData() {
-  return JSON.parse(localStorage.getItem("financeiro")) || {};
-}
+// ===============================
+// 🔥 FIRESTORE
+// ===============================
 
-function saveData(data) {
-  localStorage.setItem("financeiro", JSON.stringify(data));
-}
-
-function loadMonth() {
-  const data = getData();
-  const month = monthSelect.value;
+async function carregarLancamentos() {
+  if (!checkAuth()) return;
 
   entradaBody.innerHTML = "";
   saidaBody.innerHTML = "";
 
-  const lancamentos = data[month]?.lancamentos || [];
+  let ent = 0;
+  let sai = 0;
 
-  lancamentos.forEach((l, i) => {
+  const q = query(
+    collection(db, "usuarios", userId, "lancamentos"),
+    where("mes", "==", monthSelect.value)
+  );
+
+  const snap = await getDocs(q);
+
+  snap.forEach(docSnap => {
+    const l = docSnap.data();
+
     const tr = document.createElement("tr");
-
     tr.innerHTML = `
       <td>${l.data || "-"}</td>
       <td>${l.cliente || "-"}</td>
@@ -61,30 +86,32 @@ function loadMonth() {
       <td>R$ ${l.valor.toFixed(2)}</td>
       <td>R$ ${(l.ajudante || 0).toFixed(2)}</td>
       <td>${l.pagamento}</td>
-      <td class="${l.status === "Pago" ? "status-pago" : "status-apagar"}">
-        ${l.status}
-      </td>
+      <td class="${l.status === "Pago" ? "status-pago" : "status-apagar"}">${l.status}</td>
       <td>
-        <button class="action-btn" onclick="editLancamento(${i})">✏️</button>
+        <button class="action-btn" onclick="deletarLancamento('${docSnap.id}')">
+          🗑️
+        </button>
       </td>
     `;
 
-    if (l.tipo === "entrada") entradaBody.appendChild(tr);
-    else saidaBody.appendChild(tr);
+    if (l.tipo === "entrada") {
+      entradaBody.appendChild(tr);
+      ent += l.valor;
+    } else {
+      saidaBody.appendChild(tr);
+      sai += l.valor;
+    }
   });
 
-  calculate();
+  totalEntrada.textContent = ent.toFixed(2);
+  totalSaida.textContent = sai.toFixed(2);
+  lucro.textContent = (ent - sai).toFixed(2);
 }
 
-function addLancamento() {
-  const month = monthSelect.value;
-  const data = getData();
+async function addLancamento() {
+  if (!checkAuth()) return;
 
-  if (!data[month]) {
-    data[month] = { meta: 0, lancamentos: [] };
-  }
-
-  const novoLancamento = {
+  const lancamento = {
     data: dataInput.value,
     cliente: cliente.value,
     descricao: descricao.value,
@@ -92,374 +119,23 @@ function addLancamento() {
     tipo: tipo.value,
     pagamento: pagamento.value,
     status: status.value,
-    ajudante: Number(ajudante.value || 0)
-  };
-
-  if (editIndex !== null) {
-    data[month].lancamentos[editIndex] = novoLancamento;
-    editIndex = null;
-    document.querySelector(".form button").innerText = "Adicionar";
-  } else {
-    data[month].lancamentos.push(novoLancamento);
-  }
-
-  saveData(data);
-  clearForm();
-  loadMonth();
-}
-
-function editLancamento(index) {
-  const data = getData();
-  const l = data[monthSelect.value].lancamentos[index];
-
-  dataInput.value = l.data;
-  cliente.value = l.cliente;
-  descricao.value = l.descricao;
-  valor.value = l.valor;
-  tipo.value = l.tipo;
-  pagamento.value = l.pagamento;
-  status.value = l.status;
-  ajudante.value = l.ajudante;
-
-  editIndex = index;
-  document.querySelector(".form button").innerText = "Salvar edição";
-}
-
-function saveMeta() {
-  const data = getData();
-  const month = monthSelect.value;
-
-  if (!data[month]) {
-    data[month] = { meta: 0, lancamentos: [] };
-  }
-
-  data[month].meta = Number(metaInput.value || 0);
-  saveData(data);
-}
-
-function calculate() {
-  const data = getData()[monthSelect.value];
-  if (!data) return;
-
-  let entrada = 0;
-  let saida = 0;
-
-  data.lancamentos.forEach(l => {
-    if (l.tipo === "entrada") entrada += l.valor;
-    else saida += l.valor;
-  });
-
-  totalEntrada.textContent = entrada.toFixed(2);
-  totalSaida.textContent = saida.toFixed(2);
-  lucro.textContent = (entrada - saida).toFixed(2);
-}
-
-function clearForm() {
-  dataInput.value = "";
-  cliente.value = "";
-  descricao.value = "";
-  valor.value = "";
-  ajudante.value = "";
-  tipo.value = "entrada";
-  status.value = "Pago";
-}
-
-/* ===================== PDF ===================== */
-
-function exportPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("p", "mm", "a4");
-
-  const data = getData();
-  const month = monthSelect.value;
-
-  if (!data[month]) {
-    alert("Não há dados para este mês.");
-    return;
-  }
-
-  const lancamentos = data[month].lancamentos;
-  const meta = data[month].meta || 0;
-
-  let y = 20;
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.text("RELATÓRIO FINANCEIRO MENSAL", 105, y, { align: "center" });
-  y += 10;
-
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text(`Mês de Referência: ${month}`, 15, y);
-  y += 6;
-  doc.text(`Meta Mensal: R$ ${meta.toFixed(2)}`, 15, y);
-  y += 6;
-
-  doc.line(15, y, 195, y);
-  y += 8;
-
-  let totalEntrada = 0;
-  let totalSaida = 0;
-
-  lancamentos.forEach(l => {
-    if (l.tipo === "entrada") totalEntrada += l.valor;
-    else totalSaida += l.valor;
-  });
-
-  doc.setFont("helvetica", "bold");
-  doc.text("RESUMO FINANCEIRO", 15, y);
-  y += 6;
-
-  doc.setFont("helvetica", "normal");
-  doc.text(`Faturamento Total: R$ ${totalEntrada.toFixed(2)}`, 15, y);
-  y += 5;
-  doc.text(`Total de Despesas: R$ ${totalSaida.toFixed(2)}`, 15, y);
-  y += 5;
-  doc.text(`Lucro Líquido: R$ ${(totalEntrada - totalSaida).toFixed(2)}`, 15, y);
-  y += 8;
-
-  doc.line(15, y, 195, y);
-  y += 8;
-
-  doc.setFont("helvetica", "bold");
-  doc.text("ENTRADAS", 15, y);
-  y += 6;
-
-  doc.setFontSize(9);
-  doc.text("Data", 15, y);
-  doc.text("Cliente", 35, y);
-  doc.text("Descrição", 75, y);
-  doc.text("Valor", 140, y);
-  doc.text("Pagamento", 165, y);
-  y += 4;
-  doc.line(15, y, 195, y);
-  y += 4;
-
-  doc.setFont("helvetica", "normal");
-
-  lancamentos.filter(l => l.tipo === "entrada").forEach(l => {
-    if (y > 270) { doc.addPage(); y = 20; }
-    doc.text(l.data || "-", 15, y);
-    doc.text(l.cliente || "-", 35, y);
-    doc.text(l.descricao || "-", 75, y);
-    doc.text(`R$ ${l.valor.toFixed(2)}`, 140, y);
-    doc.text(l.pagamento, 165, y);
-    y += 5;
-  });
-
-  y += 8;
-  doc.setFont("helvetica", "bold");
-  doc.text("SAÍDAS", 15, y);
-  y += 6;
-
-  doc.setFontSize(9);
-  doc.text("Data", 15, y);
-  doc.text("Origem", 35, y);
-  doc.text("Descrição", 75, y);
-  doc.text("Valor", 140, y);
-  doc.text("Pagamento", 165, y);
-  y += 4;
-  doc.line(15, y, 195, y);
-  y += 4;
-
-  doc.setFont("helvetica", "normal");
-
-  lancamentos.filter(l => l.tipo === "saida").forEach(l => {
-    if (y > 270) { doc.addPage(); y = 20; }
-    doc.text(l.data || "-", 15, y);
-    doc.text(l.cliente || "-", 35, y);
-    doc.text(l.descricao || "-", 75, y);
-    doc.text(`R$ ${l.valor.toFixed(2)}`, 140, y);
-    doc.text(l.pagamento, 165, y);
-    y += 5;
-  });
-
-  y += 15;
-  doc.setFontSize(8);
-  doc.text(
-    "Documento gerado automaticamente para fins de controle financeiro e arquivamento.",
-    15,
-    y
-  );
-
-  y += 10;
-  doc.text("Assinatura do responsável: ________________________________", 15, y);
-
-  doc.save(`Relatorio_Financeiro_${month}.pdf`);
-}
-
-loadMonth();
-function exportPDFAnual() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("p", "mm", "a4");
-
-  const data = getData();
-  let y = 20;
-
-  // ===== TÍTULO =====
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.text("RESUMO FINANCEIRO ANUAL", 105, y, { align: "center" });
-  y += 12;
-
-  // ===== CALCULAR TOTAIS =====
-  let totalEntradasAno = 0;
-  let totalSaidasAno = 0;
-  let mesesComMovimento = 0;
-
-  const resumoMensal = months.map(mes => {
-    const lanc = data[mes]?.lancamentos || [];
-
-    let ent = 0;
-    let sai = 0;
-
-    lanc.forEach(l => {
-      if (l.tipo === "entrada") ent += l.valor;
-      else sai += l.valor;
-    });
-
-    if (ent !== 0 || sai !== 0) mesesComMovimento++;
-
-    totalEntradasAno += ent;
-    totalSaidasAno += sai;
-
-    return {
-      mes,
-      entradas: ent,
-      saidas: sai,
-      total: ent - sai
-    };
-  });
-
-  const mediaMensal =
-    mesesComMovimento > 0
-      ? (totalEntradasAno - totalSaidasAno) / mesesComMovimento
-      : 0;
-
-  // ===== MÉDIA MENSAL =====
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text(`Média Mensal: R$ ${mediaMensal.toFixed(2)}`, 15, y);
-  y += 8;
-
-  // ===== CABEÇALHO DA TABELA =====
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.text("Mês", 15, y);
-  doc.text("Entradas", 70, y);
-  doc.text("Saídas", 115, y);
-  doc.text("Total", 155, y);
-  y += 4;
-
-  doc.line(15, y, 195, y);
-  y += 4;
-
-  // ===== LINHAS =====
-  doc.setFont("helvetica", "normal");
-
-  resumoMensal.forEach(l => {
-    if (y > 270) {
-      doc.addPage();
-      y = 20;
-    }
-
-    doc.text(l.mes, 15, y);
-    doc.text(`R$ ${l.entradas.toFixed(2)}`, 70, y);
-    doc.text(`R$ ${l.saidas.toFixed(2)}`, 115, y);
-    doc.text(`R$ ${l.total.toFixed(2)}`, 155, y);
-    y += 5;
-  });
-
-  // ===== ANOTAÇÕES =====
-y += 12;
-doc.setFontSize(9);
-doc.setFont("helvetica", "bold");
-doc.text("ANOTAÇÕES", 15, y);
-y += 6;
-
-doc.setFont("helvetica", "normal");
-
-const linhasAnotacoes = 5;      // 👈 quantas linhas você quer
-const espacamento = 8;         // 👈 espaço entre elas
-
-for (let i = 0; i < linhasAnotacoes; i++) {
-  if (y > 270) {
-    doc.addPage();
-    y = 20;
-  }
-  doc.line(15, y, 195, y);
-  y += espacamento;
-}
-
-  // ===== ASSINATURA =====
-  y += 20;
-  doc.text("Assinatura do responsável: ________________________________", 15, y);
-
-  // ===== SALVAR =====
-  doc.save("Resumo_Financeiro_Anual.pdf");
-}
-import {
-  collection,
-  addDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-async function addLancamento() {
-  const lancamento = {
-    data: data.value,
-    cliente: cliente.value,
-    descricao: descricao.value,
-    valor: Number(valor.value),
     ajudante: Number(ajudante.value || 0),
-    tipo: tipo.value,
-    pagamento: pagamento.value,
-    status: status.value,
     mes: monthSelect.value
   };
 
-  await addDoc(collection(db, "lancamentos"), lancamento);
+  await addDoc(
+    collection(db, "usuarios", userId, "lancamentos"),
+    lancamento
+  );
 
-  alert("Lançamento salvo 🔥");
-}
-async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (e) {
-    alert("Erro ao entrar: " + e.message);
-  }
-}
-async function register() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    alert("Cadastro realizado com sucesso 🎉");
-  } catch (e) {
-    alert("Erro ao cadastrar: " + e.message);
-  }
-}
-onAuthStateChanged(auth, user => {
-  if (user) {
-    window.userId = user.uid;
-
-    document.getElementById("auth").style.display = "none";
-    document.getElementById("app").style.display = "block";
-
-    carregarLancamentos(monthSelect.value);
-  } else {
-    document.getElementById("auth").style.display = "block";
-    document.getElementById("app").style.display = "none";
-  }
-});
-async function logout() {
-  await signOut(auth);
+  limparFormulario();
+  carregarLancamentos();
 }
 
+async function deletarLancamento(id) {
+  if (!checkAuth()) return;
+  if (!confirm("Excluir lançamento?")) return;
 
-window.pdf = {
-  mensal: exportPDF,
-  anual: exportPDFAnual
-};
+  await deleteDoc(
+    doc(db, "usuarios", userId, "lancamentos", id)
+  );
