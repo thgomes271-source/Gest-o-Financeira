@@ -67,11 +67,7 @@ function carregarDadosIniciais() {
 
 monthSelect.addEventListener("change", carregarLancamentos);
 
-function formatarData(dataISO) {
-    if (!dataISO) return "-";
-    const partes = dataISO.split("-");
-    return partes.length === 3 ? `${partes[2]}-${partes[1]}-${partes[0]}` : dataISO;
-}
+
 
 // --- FUNÇÕES GLOBAIS ---
 
