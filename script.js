@@ -371,11 +371,25 @@ function exportPDFAnual() {
   });
 
   // ===== ANOTAÇÕES =====
-  y += 12;
-  doc.setFontSize(9);
-  doc.text("ANOTAÇÕES", 15, y);
-  y += 10;
+y += 12;
+doc.setFontSize(9);
+doc.setFont("helvetica", "bold");
+doc.text("ANOTAÇÕES", 15, y);
+y += 6;
+
+doc.setFont("helvetica", "normal");
+
+const linhasAnotacoes = 5;      // 👈 quantas linhas você quer
+const espacamento = 8;         // 👈 espaço entre elas
+
+for (let i = 0; i < linhasAnotacoes; i++) {
+  if (y > 270) {
+    doc.addPage();
+    y = 20;
+  }
   doc.line(15, y, 195, y);
+  y += espacamento;
+}
 
   // ===== ASSINATURA =====
   y += 20;
