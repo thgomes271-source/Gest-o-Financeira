@@ -213,25 +213,36 @@ td { padding: 12px 8px; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
 }
 
 /* Organizando os campos em 3 colunas para diminuir a altura */
+/* Estilo específico para o formulário dentro do pop-up */
 #editModal .form-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 campos por linha */
-    gap: 15px; /* Espaço entre os campos */
-    align-items: end;
-}
-
-/* Ajuste para o botão ocupar a última linha inteira */
-#editModal .btn-add {
-    grid-column: span 3; /* Faz o botão atravessar as 3 colunas */
-    margin-top: 20px;
-    height: 50px;
-}
-
-/* Ajuste para inputs não ficarem gigantes */
-#editModal input, #editModal select {
-    width: 100%;
+    /* Aqui forçamos 3 colunas para ele ficar horizontal */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px; 
     padding: 10px;
-    margin-top: 5px;
+}
+
+/* Ajuste para o botão de salvar ocupar o espaço todo embaixo */
+#editModal button {
+    grid-column: span 3; /* Ocupa as 3 colunas */
+    margin-top: 20px;
+}
+
+/* Deixa o Modal largo para acomodar as 3 colunas */
+#editModal .modal-content {
+    max-width: 850px; /* Largura de retângulo */
+    width: 90%;
+    padding: 30px;
+}
+
+#editModal .form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 campos por linha */
+    gap: 15px;
+}
+
+#editModal button {
+    grid-column: span 4; /* Botão atravessa as 4 colunas */
 }
 
 /* --- UTILITÁRIOS --- */
