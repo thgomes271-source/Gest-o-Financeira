@@ -28,8 +28,9 @@
   <input type="email" id="email" placeholder="Email">
   <input type="password" id="password" placeholder="Senha">
 
-  <button onclick="login()">Entrar</button>
-  <button onclick="register()">Cadastrar</button>
+  <button id="login()">Entrar</button>
+  <button id="register()">Cadastrar</button>
+  <button id="btnLogout">Sair</button>
 </section>
 
 <!-- ================= APP ================= -->
@@ -142,51 +143,9 @@
   </table>
 
 </section>
-
-<!-- ============ FIREBASE ============ -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import {
-    getAuth,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyB7ugVILO8olKtzkCJI_7BRlzY6Qe0-rCM",
-    authDomain: "gst-financeira.firebaseapp.com",
-    projectId: "gst-financeira",
-  };
-
-  const app = initializeApp(firebaseConfig);
-
-  window.db = getFirestore(app);
-  window.auth = getAuth(app);
-
-  // 🔥 EXPOR FUNÇÕES DO AUTH
-  window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-  window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-  window.signOut = signOut;
-
-  // 🔥 ESTE É O PONTO QUE FALTAVA
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      console.log("Usuário logado:", user.email);
-
-      document.getElementById("auth").style.display = "none";
-      document.getElementById("app").style.display = "block";
-    } else {
-      document.getElementById("auth").style.display = "block";
-      document.getElementById("app").style.display = "none";
-    }
-  });
-</script>
-
 <!-- SCRIPT PRINCIPAL -->
-<script src="script.js"></script>
+<script type="module" src="script.js"></script>
+
 
 <!-- SERVICE WORKER -->
 <script>
