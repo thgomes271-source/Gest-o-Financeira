@@ -385,6 +385,7 @@ function exportPDFAnual() {
   doc.save("Resumo_Financeiro_Anual.pdf");
 }
 
-window.exportPDFAnual = exportPDFAnual;
-window.exportPDF = exportPDF;
-
+window.pdf = {
+  mensal: exportPDF,
+  anual: exportPDFAnual
+};
