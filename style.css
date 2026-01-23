@@ -267,6 +267,14 @@ input, select { padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; }
     margin-bottom: 20px;
 }
 
+#editModal label {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555;
+}
+
 .close-modal {
     font-size: 28px;
     font-weight: bold;
