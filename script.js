@@ -453,3 +453,58 @@ function abrirEdicao(id) {
 function closeModal() {
     document.getElementById('editModal').style.display = 'none';
 }
+
+window.prepararEdicao = async (id) => {
+    try {
+        const docRef = doc(db, "lancamentos", id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const dados = docSnap.data();
+            editId = id; // Guarda o ID globalmente
+
+            // Preenche os campos do MODAL
+            document.getElementById("editData").value = dados.data;
+            document.getElementById("editCliente").value = dados.cliente;
+            document.getElementById("editDescricao").value = dados.descricao;
+            document.getElementById("editValor").value = dados.valor;
+            document.getElementById("editTipo").value = dados.tipo;
+            document.getElementById("editPagamento").value = dados.pagamento;
+            document.getElementById("editStatus").value = dados.status;
+            document.getElementById("editAjudante").value = dados.ajudante;
+
+            // Mostra o modal
+            document.getElementById("editModal").style.display = "block";
+        }
+    } catch (e) { console.error("Erro ao carregar edição:", e); }
+};
+
+window.fecharModal = () => {
+    document.getElementById("editModal").style.display = "none";
+    editId = null;
+};
+
+// Função para salvar o que foi editado no Modal
+window.salvarEdicao = async () => {
+    if (!editId) return;
+
+    const dados = {
+        userId: auth.currentUser.uid,
+        mes: monthSelect.value,
+        data: document.getElementById("editData").value,
+        cliente: document.getElementById("editCliente").value,
+        descricao: document.getElementById("editDescricao").value,
+        valor: parseFloat(document.getElementById("editValor").value) || 0,
+        tipo: document.getElementById("editTipo").value,
+        pagamento: document.getElementById("editPagamento").value,
+        status: document.getElementById("editStatus").value,
+        ajudante: parseFloat(document.getElementById("editAjudante").value) || 0
+    };
+
+    try {
+        await setDoc(doc(db, "lancamentos", editId), dados);
+        alert("Atualizado com sucesso!");
+        fecharModal();
+        carregarLancamentos(); // Recarrega a lista
+    } catch (e) { console.error("Erro ao salvar:", e); }
+};
