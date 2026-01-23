@@ -104,4 +104,14 @@ tr:hover {
   background-color: #f5c6cb; /* vermelho um pouco mais forte ao passar o mouse */
   transition: background-color 0.3s;
 }
+.status-pago {
+  color: #166534;
+  font-weight: 600;
+}
+
+.status-apagar {
+  color: #991b1b;
+  font-weight: 600;
+}
+
 
