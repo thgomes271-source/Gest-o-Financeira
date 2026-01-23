@@ -152,6 +152,7 @@ body {
     padding: 0 !important;
     overflow: hidden;
     margin-bottom: 25px;
+    border-bottom: 4px solid var(--primary);
 }
 
 .sticky-title {
