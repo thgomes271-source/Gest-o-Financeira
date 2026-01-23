@@ -15,6 +15,20 @@
 <body>
 
   <h1>Gestão Financeira</h1>
+<section id="auth">
+  <h2>Acesso ao sistema</h2>
+
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Senha">
+
+  <button onclick="login()">Entrar</button>
+  <button onclick="register()">Cadastrar</button>
+</section>
+
+<section id="app" style="display:none;">
+  
+  <!-- TODO O SEU SISTEMA ATUAL FICA AQUI -->
+</section>
 
   <!-- CONTROLES -->
   <section class="controls">
@@ -126,6 +140,17 @@
 
   window.app = initializeApp(firebaseConfig);
   window.db = getFirestore(app);
+  
+  import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+window.auth = getAuth(app);
+
 </script>
   
   <!-- SCRIPT PRINCIPAL -->
