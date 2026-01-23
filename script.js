@@ -438,3 +438,18 @@ function limparFormulario() {
     document.getElementById("valor").value = "";
     document.getElementById("ajudante").value = "";
 }
+function formatarData(dataISO) {
+    if(!dataISO) return "";
+    const [ano, mes, dia] = dataISO.split("-");
+    return `${dia}-${mes}-${ano}`;
+}
+// Use formatarData(item.data) na hora de criar a linha da tabela
+function abrirEdicao(id) {
+    const modal = document.getElementById('editModal');
+    modal.style.display = 'block';
+    // Aqui você deve buscar os dados do item pelo ID e preencher o formulário do modal
+}
+
+function closeModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
