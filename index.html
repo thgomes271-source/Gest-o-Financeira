@@ -179,13 +179,49 @@
 </div>
 
 <div id="editModal" class="modal">
-    <div class="modal-content card">
-        <h2>Editar Lançamento</h2>
-        <div id="editForm" class="form-grid">
-            </div>
-        <div class="modal-buttons">
-            <button onclick="closeModal()" class="btn-cancel">Cancelar</button>
-            <button onclick="updateLancamento()" class="btn-save">Salvar Alterações</button>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Editar Lançamento</h2>
+            <span class="close-modal" onclick="fecharModal()">&times;</span>
+        </div>
+        
+        <div class="form-grid">
+            <label>Data</label>
+            <input type="date" id="editData">
+            
+            <label>Cliente/Origem</label>
+            <input type="text" id="editCliente">
+            
+            <label>Descrição</label>
+            <input type="text" id="editDescricao">
+            
+            <label>Valor</label>
+            <input type="number" id="editValor">
+            
+            <label>Tipo</label>
+            <select id="editTipo">
+                <option value="entrada">Entrada</option>
+                <option value="saida">Saída</option>
+            </select>
+            
+            <label>Pagamento</label>
+            <select id="editPagamento">
+                <option value="Pix">Pix</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Débito">Débito</option>
+                <option value="Crédito">Crédito</option>
+            </select>
+            
+            <label>Status</label>
+            <select id="editStatus">
+                <option value="Pago">Pago</option>
+                <option value="A pagar">A pagar</option>
+            </select>
+            
+            <label>Ajudante</label>
+            <input type="number" id="editAjudante">
+
+            <button onclick="salvarEdicao()" class="btn-add" style="width: 100%;">Salvar Alterações</button>
         </div>
     </div>
 </div>
