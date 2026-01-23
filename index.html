@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Gestão Financeira</title>
+  <title>Gest Financial</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#1f2937">
@@ -10,11 +10,18 @@
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 
+  <!-- Font Awesome (ícones) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
+
 <body>
 
-  <h1>Gestão Financeira</h1>
+<h1>Gestão Financeira</h1>
+
+<!-- ================= AUTH ================= -->
 <section id="auth">
   <h2>Acesso ao sistema</h2>
 
@@ -25,142 +32,100 @@
   <button onclick="register()">Cadastrar</button>
 </section>
 
+<!-- ================= APP ================= -->
 <section id="app" style="display:none;">
-  
-        <!-- TODO O SEU SISTEMA ATUAL FICA AQUI -->
-      
-        <!-- CONTROLES -->
-        <section class="controls">
-            <label>
-                Mês:
-                <select id="monthSelect"></select>
-            </label>
-        
-            <label>
-                Meta Mensal:
-                <input type="number" id="metaInput" placeholder="R$">
-            </label>
-        
-            <button onclick="saveMeta()"><i class="fa-solid fa-floppy-disk"></i> Salvar Meta</button>
-            <button onclick="pdf.mensal()"><i class="fa-solid fa-file-pdf"></i> Exportar PDF Mensal</button>
-            <button onclick="epdf.anual()"><i class="fa-solid fa-file-pdf"></i> Exportar Resumo Anual</button>
-      
-        </section>
-      
-      
-        <!-- RESUMO -->
-        <section class="summary">
-          <p>Faturamento: R$ <span id="totalEntrada">0</span></p>
-          <p>Despesas: R$ <span id="totalSaida">0</span></p>
-          <p>Lucro Líquido: R$ <span id="lucro">0</span></p>
-        </section>
-      
-        <!-- FORMULÁRIO -->
-        <section>
-          <h2>Novo Lançamento</h2>
-      
-          <div class="form">
-            <input type="date" id="data">
-      
-            <input type="text" id="cliente" placeholder="Cliente / Origem">
-            <input type="text" id="descricao" placeholder="Descrição">
-      
-            <input type="number" id="valor" placeholder="Valor">
-      
-            <select id="tipo">
-              <option value="entrada">Entrada</option>
-              <option value="saida">Saída</option>
-            </select>
-      
-            <select id="pagamento">
-              <option value="Débito">Débito</option>
-              <option value="Crédito">Crédito</option>
-              <option value="Pix">Pix</option>
-              <option value="Dinheiro">Dinheiro</option>
-              <option value="Misto">Misto</option>
-            </select>
-      
-            <select id="status">
-              <option value="Pago">Pago</option>
-              <option value="A pagar">A pagar</option>
-            </select>
-      
-            <input type="number" id="ajudante" placeholder="Custo ajudante">
-      
-            <button onclick="addLancamento()">Adicionar</button>
-          </div>
-        </section>
-      
-        <!-- ENTRADAS -->
-        <h2>Entradas</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Cliente</th>
-              <th>Descrição</th>
-              <th>Valor</th>
-              <th>Ajudante</th>
-              <th>Pagamento</th>
-              <th>Status</th>
-              <th>Ação</th>
-            </tr>
-          </thead>
-          <tbody id="entradaBody"></tbody>
-        </table>
-      
-        <!-- SAÍDAS -->
-        <h2>Saídas</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Origem</th>
-              <th>Descrição</th>
-              <th>Valor</th>
-              <th>Ajudante</th>
-              <th>Pagamento</th>
-              <th>Status</th>
-              <th>Ação</th>
-            </tr>
-          </thead>
-          <tbody id="saidaBody"></tbody>
-        </table>
+
+  <button onclick="logout()" style="float:right;">Sair</button>
+
+  <!-- CONTROLES -->
+  <section class="controls">
+    <label>
+      Mês:
+      <select id="monthSelect"></select>
+    </label>
+
+    <label>
+      Meta Mensal:
+      <input type="number" id="metaInput" placeholder="R$">
+    </label>
+
+    <button onclick="saveMeta()">
+      <i class="fa-solid fa-floppy-disk"></i> Salvar Meta
+    </button>
+
+    <button onclick="pdf.mensal()">
+      <i class="fa-solid fa-file-pdf"></i> Exportar PDF Mensal
+    </button>
+
+    <button onclick="pdf.anual()">
+      <i class="fa-solid fa-file-pdf"></i> Exportar Resumo Anual
+    </button>
   </section>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyB7ugVILO8olKtzkCJI_7BRlzY6Qe0-rCM",
-    authDomain: "gst-financeira.firebaseapp.com",
-    projectId: "gst-financeira",
-  };
+  <!-- RESUMO -->
+  <section class="summary">
+    <p>Faturamento: R$ <span id="totalEntrada">0</span></p>
+    <p>Despesas: R$ <span id="totalSaida">0</span></p>
+    <p>Lucro Líquido: R$ <span id="lucro">0</span></p>
+  </section>
 
-  window.app = initializeApp(firebaseConfig);
-  window.db = getFirestore(app);
-  
-  import {
-  getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  <!-- FORMULÁRIO -->
+  <section>
+    <h2>Novo Lançamento</h2>
 
-window.auth = getAuth(app);
+    <div class="form">
+      <input type="date" id="data">
 
-</script>
-  
-  <!-- SCRIPT PRINCIPAL -->
-  <script src="script.js"></script>
+      <input type="text" id="cliente" placeholder="Cliente / Origem">
+      <input type="text" id="descricao" placeholder="Descrição">
 
-  <!-- SERVICE WORKER -->
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
-    }
-  </script>
+      <input type="number" id="valor" placeholder="Valor">
 
-</body>
-</html>
+      <select id="tipo">
+        <option value="entrada">Entrada</option>
+        <option value="saida">Saída</option>
+      </select>
+
+      <select id="pagamento">
+        <option value="Débito">Débito</option>
+        <option value="Crédito">Crédito</option>
+        <option value="Pix">Pix</option>
+        <option value="Dinheiro">Dinheiro</option>
+        <option value="Misto">Misto</option>
+      </select>
+
+      <select id="status">
+        <option value="Pago">Pago</option>
+        <option value="A pagar">A pagar</option>
+      </select>
+
+      <input type="number" id="ajudante" placeholder="Custo ajudante">
+
+      <button onclick="addLancamento()">Adicionar</button>
+    </div>
+  </section>
+
+  <!-- ENTRADAS -->
+  <h2>Entradas</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Cliente</th>
+        <th>Descrição</th>
+        <th>Valor</th>
+        <th>Ajudante</th>
+        <th>Pagamento</th>
+        <th>Status</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody id="entradaBody"></tbody>
+  </table>
+
+  <!-- SAÍDAS -->
+  <h2>Saídas</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
