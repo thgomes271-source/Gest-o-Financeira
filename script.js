@@ -515,7 +515,3 @@ window.salvarEdicao = async () => {
     } catch (e) { console.error("Erro ao salvar:", e); }
 };
 
-window.db = db;
-window.getDocs = getDocs;
-window.collection = collection;
-
