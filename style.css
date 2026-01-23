@@ -203,6 +203,19 @@ td { padding: 12px 8px; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
     max-width: 450px;
     border-radius: 15px;
 }
+/* Criando as duas colunas para os campos */
+#editModal .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Divide em 2 colunas iguais */
+    gap: 15px 25px; /* Espaço entre campos (altura e largura) */
+}
+
+/* Faz o botão ocupar as duas colunas no final */
+#editModal .btn-add {
+    grid-column: span 2; 
+    margin-top: 20px;
+    padding: 15px;
+}
 
 .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
 .btn-save { flex: 1; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; }
