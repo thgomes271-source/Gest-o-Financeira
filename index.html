@@ -27,107 +27,106 @@
 
 <section id="app" style="display:none;">
   
-  <!-- TODO O SEU SISTEMA ATUAL FICA AQUI -->
-</section>
-
-  <!-- CONTROLES -->
-  <section class="controls">
-    <label>
-      Mês:
-      <select id="monthSelect"></select>
-    </label>
-
-    <label>
-      Meta Mensal:
-      <input type="number" id="metaInput" placeholder="R$">
-    </label>
-
-    <button onclick="saveMeta()"><i class="fa-solid fa-floppy-disk"></i> Salvar Meta</button>
-    <button onclick="pdf.mensal()"><i class="fa-solid fa-file-pdf"></i> Exportar PDF Mensal</button>
-    <button onclick="epdf.anual()"><i class="fa-solid fa-file-pdf"></i> Exportar Resumo Anual</button>
-
+        <!-- TODO O SEU SISTEMA ATUAL FICA AQUI -->
+      
+        <!-- CONTROLES -->
+        <section class="controls">
+            <label>
+                Mês:
+                <select id="monthSelect"></select>
+            </label>
+        
+            <label>
+                Meta Mensal:
+                <input type="number" id="metaInput" placeholder="R$">
+            </label>
+        
+            <button onclick="saveMeta()"><i class="fa-solid fa-floppy-disk"></i> Salvar Meta</button>
+            <button onclick="pdf.mensal()"><i class="fa-solid fa-file-pdf"></i> Exportar PDF Mensal</button>
+            <button onclick="epdf.anual()"><i class="fa-solid fa-file-pdf"></i> Exportar Resumo Anual</button>
+      
+        </section>
+      
+      
+        <!-- RESUMO -->
+        <section class="summary">
+          <p>Faturamento: R$ <span id="totalEntrada">0</span></p>
+          <p>Despesas: R$ <span id="totalSaida">0</span></p>
+          <p>Lucro Líquido: R$ <span id="lucro">0</span></p>
+        </section>
+      
+        <!-- FORMULÁRIO -->
+        <section>
+          <h2>Novo Lançamento</h2>
+      
+          <div class="form">
+            <input type="date" id="data">
+      
+            <input type="text" id="cliente" placeholder="Cliente / Origem">
+            <input type="text" id="descricao" placeholder="Descrição">
+      
+            <input type="number" id="valor" placeholder="Valor">
+      
+            <select id="tipo">
+              <option value="entrada">Entrada</option>
+              <option value="saida">Saída</option>
+            </select>
+      
+            <select id="pagamento">
+              <option value="Débito">Débito</option>
+              <option value="Crédito">Crédito</option>
+              <option value="Pix">Pix</option>
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="Misto">Misto</option>
+            </select>
+      
+            <select id="status">
+              <option value="Pago">Pago</option>
+              <option value="A pagar">A pagar</option>
+            </select>
+      
+            <input type="number" id="ajudante" placeholder="Custo ajudante">
+      
+            <button onclick="addLancamento()">Adicionar</button>
+          </div>
+        </section>
+      
+        <!-- ENTRADAS -->
+        <h2>Entradas</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Cliente</th>
+              <th>Descrição</th>
+              <th>Valor</th>
+              <th>Ajudante</th>
+              <th>Pagamento</th>
+              <th>Status</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="entradaBody"></tbody>
+        </table>
+      
+        <!-- SAÍDAS -->
+        <h2>Saídas</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Origem</th>
+              <th>Descrição</th>
+              <th>Valor</th>
+              <th>Ajudante</th>
+              <th>Pagamento</th>
+              <th>Status</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="saidaBody"></tbody>
+        </table>
   </section>
-
-
-  <!-- RESUMO -->
-  <section class="summary">
-    <p>Faturamento: R$ <span id="totalEntrada">0</span></p>
-    <p>Despesas: R$ <span id="totalSaida">0</span></p>
-    <p>Lucro Líquido: R$ <span id="lucro">0</span></p>
-  </section>
-
-  <!-- FORMULÁRIO -->
-  <section>
-    <h2>Novo Lançamento</h2>
-
-    <div class="form">
-      <input type="date" id="data">
-
-      <input type="text" id="cliente" placeholder="Cliente / Origem">
-      <input type="text" id="descricao" placeholder="Descrição">
-
-      <input type="number" id="valor" placeholder="Valor">
-
-      <select id="tipo">
-        <option value="entrada">Entrada</option>
-        <option value="saida">Saída</option>
-      </select>
-
-      <select id="pagamento">
-        <option value="Débito">Débito</option>
-        <option value="Crédito">Crédito</option>
-        <option value="Pix">Pix</option>
-        <option value="Dinheiro">Dinheiro</option>
-        <option value="Misto">Misto</option>
-      </select>
-
-      <select id="status">
-        <option value="Pago">Pago</option>
-        <option value="A pagar">A pagar</option>
-      </select>
-
-      <input type="number" id="ajudante" placeholder="Custo ajudante">
-
-      <button onclick="addLancamento()">Adicionar</button>
-    </div>
-  </section>
-
-  <!-- ENTRADAS -->
-  <h2>Entradas</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Cliente</th>
-        <th>Descrição</th>
-        <th>Valor</th>
-        <th>Ajudante</th>
-        <th>Pagamento</th>
-        <th>Status</th>
-        <th>Ação</th>
-      </tr>
-    </thead>
-    <tbody id="entradaBody"></tbody>
-  </table>
-
-  <!-- SAÍDAS -->
-  <h2>Saídas</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Origem</th>
-        <th>Descrição</th>
-        <th>Valor</th>
-        <th>Ajudante</th>
-        <th>Pagamento</th>
-        <th>Status</th>
-        <th>Ação</th>
-      </tr>
-    </thead>
-    <tbody id="saidaBody"></tbody>
-  </table>
-  
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
