@@ -100,8 +100,27 @@ async function carregarLancamentos() {
 
     snap.forEach(d => {
         const item = { id: d.id, ...d.data() };
-        const row = `<tr><td>${item.data}</td><td>${item.cliente}</td><td>R$ ${item.valor.toFixed(2)}</td>
-                     <td><button onclick="deletar('${item.id}')">Excluir</button></td></tr>`;
+        // Substitua a parte da variável 'row' dentro do loop snap.forEach na função carregarLancamentos:
+
+        const row = `
+            <tr>
+                <td>${item.data || "-"}</td>
+                <td>${item.cliente || "-"}</td>
+                <td>${item.descricao || "-"}</td>
+                <td>R$ ${Number(item.valor).toFixed(2)}</td>
+                <td>R$ ${Number(item.ajudante || 0).toFixed(2)}</td>
+                <td>${item.pagamento || "-"}</td>
+                <td><span class="status-${item.status.toLowerCase().replace(" ", "-")}">${item.status || "-"}</span></td>
+                <td>
+                    <button class="btn-edit" onclick="prepararEdicao('${item.id}')" title="Editar">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button class="btn-delete" onclick="deletar('${item.id}')" title="Excluir">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
         
         if (item.tipo === "entrada") {
             totE += item.valor;
