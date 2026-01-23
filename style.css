@@ -185,41 +185,54 @@ td { padding: 12px 8px; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
 }
 
 /* --- POP-UP DE EDIÇÃO (MODAL) --- */
+/* Container que centraliza o modal na tela */
 .modal {
     display: none;
     position: fixed;
-    z-index: 2000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(3px);
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    overflow: hidden; /* Evita que a página principal role */
 }
 
+/* O "Retângulo Deitado" */
 .modal-content {
-    background: white;
-    margin: 5% auto;
+    background-color: white;
+    margin: 10vh auto; /* 10% de distância do topo */
     padding: 25px;
+    border-radius: 12px;
+    
+    /* Ajuste de Comprimento Horizontal */
     width: 90%;
-    max-width: 450px;
-    border-radius: 15px;
+    max-width: 900px; /* Largura grande para parecer um retângulo deitado */
+    
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
-/* Criando as duas colunas para os campos */
+
+/* Organizando os campos em 3 colunas para diminuir a altura */
 #editModal .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Divide em 2 colunas iguais */
-    gap: 15px 25px; /* Espaço entre campos (altura e largura) */
+    grid-template-columns: repeat(3, 1fr); /* 3 campos por linha */
+    gap: 15px; /* Espaço entre os campos */
+    align-items: end;
 }
 
-/* Faz o botão ocupar as duas colunas no final */
+/* Ajuste para o botão ocupar a última linha inteira */
 #editModal .btn-add {
-    grid-column: span 2; 
+    grid-column: span 3; /* Faz o botão atravessar as 3 colunas */
     margin-top: 20px;
-    padding: 15px;
+    height: 50px;
 }
 
-.modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
-.btn-save { flex: 1; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; }
-.btn-cancel { flex: 1; background: #e5e7eb; color: #374151; border: none; padding: 10px; border-radius: 6px; cursor: pointer; }
+/* Ajuste para inputs não ficarem gigantes */
+#editModal input, #editModal select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+}
 
 /* --- UTILITÁRIOS --- */
 .txt-green { color: var(--success); }
@@ -227,59 +240,3 @@ td { padding: 12px 8px; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
 input, select { padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; }
 .btn-edit { color: #3b82f6; cursor: pointer; margin-right: 8px; background: none; border: none; font-size: 16px; }
 .btn-delete { color: var(--danger); cursor: pointer; background: none; border: none; font-size: 16px; }
-
-/* --- MODAL DE EDIÇÃO (O MENU FLUTUANTE) --- */
-.modal {
-    display: none; /* Escondido por padrão */
-    position: fixed;
-    z-index: 9999; /* Fica acima de tudo */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Fundo escurecido */
-    backdrop-filter: blur(4px); /* Efeito de vidro no fundo */
-}
-
-.modal-content {
-    background-color: white;
-    margin: 5% auto;
-    padding: 30px;
-    border-radius: 15px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    position: relative;
-    animation: animatemodal 0.3s; /* Animação ao abrir */
-}
-
-@keyframes animatemodal {
-    from {top: -300px; opacity: 0}
-    to {top: 0; opacity: 1}
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-}
-
-#editModal label {
-    display: block;
-    font-size: 12px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #555;
-}
-
-.close-modal {
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    color: #aaa;
-}
-
-.close-modal:hover { color: black; }
