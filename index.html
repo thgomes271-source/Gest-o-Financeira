@@ -88,102 +88,114 @@
             </section>
 
             <div class="grid-layout">
-                <section class="form-section card">
-                    <h3>Novo Lançamento</h3>
-                    <br>
-                    <div class="form-grid">
-                        <label>Data</label>
-                        <input type="date" id="data">
-                        
-                        <label>Cliente</label>
-                        <input type="text" id="cliente" placeholder="Origem">
-                        
-                        <label>Descrição</label>
-                        <input type="text" id="descricao" placeholder="O que é?">
-                        
-                        <label>Valor</label>
-                        <input type="number" id="valor" placeholder="0.00">
-                        
-                        <label>Tipo</label>
-                        <select id="tipo">
-                            <option value="entrada">Entrada</option>
-                            <option value="saida">Saída</option>
-                        </select>
-                        
-                        <label>Pagamento</label>
-                        <select id="pagamento">
-                            <option value="Pix">Pix</option>
-                            <option value="Dinheiro">Dinheiro</option>
-                            <option value="Débito">Débito</option>
-                            <option value="Crédito">Crédito</option>
-                        </select>
+    <section class="form-section card">
+        <h2 class="form-title">Novo Lançamento</h2>
+        <div class="form-grid">
+            <label>Data</label>
+            <input type="date" id="data">
+            
+            <label>Cliente</label>
+            <input type="text" id="cliente" placeholder="Origem">
+            
+            <label>Descrição</label>
+            <input type="text" id="descricao" placeholder="O que é?">
+            
+            <label>Valor</label>
+            <input type="number" id="valor" placeholder="0.00">
+            
+            <div class="inline-group">
+                <label>Tipo</label>
+                <select id="tipo">
+                    <option value="entrada">Entrada</option>
+                    <option value="saida">Saída</option>
+                </select>
+            </div>
 
-                        <label>Status</label>
-                        <select id="status">
-                            <option value="Pago">Pago</option>
-                            <option value="A pagar">A pagar</option>
-                        </select>
+            <label>Pagamento</label>
+            <select id="pagamento">
+                <option value="Pix">Pix</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Débito">Débito</option>
+                <option value="Crédito">Crédito</option>
+            </select>
 
-                        <label>Ajudante</label>
-                        <input type="number" id="ajudante" placeholder="Custo">
+            <label>Status</label>
+            <select id="status">
+                <option value="Pago">Pago</option>
+                <option value="A pagar">A pagar</option>
+            </select>
 
-                        <button onclick="addLancamento()" class="btn-add">Adicionar</button>
-                    </div>
-                </section>
+            <label>Ajudante</label>
+            <input type="number" id="ajudante" placeholder="Custo">
 
-                <div class="tables-container">
-                    <div class="card table-card">
-                        <h2>Entradas</h2>
-                        <div class="table-scroll">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Data</th>
-                                        <th>Cliente</th>
-                                        <th>Valor</th>
-                                        <th>Ação</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="entradaBody"></tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="2">TOTAL</td>
-                                        <td id="footerTotalEntrada" class="txt-green">R$ 0.00</td>
-                                        <td></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
+            <button onclick="addLancamento()" class="btn-add">Adicionar</button>
+        </div>
+    </section>
 
-                    <div class="card table-card">
-                        <h2>Saídas</h2>
-                        <div class="table-scroll">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Data</th>
-                                        <th>Descrição</th>
-                                        <th>Valor</th>
-                                        <th>Ação</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="saidaBody"></tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="2">TOTAL</td>
-                                        <td id="footerTotalSaida" class="txt-red">R$ 0.00</td>
-                                        <td></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div> </section>
-    </main>
+    <div class="tables-container">
+        <div class="card table-card">
+            <h2 class="sticky-title">Entradas</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Cliente</th>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                            <th>Ajudante</th>
+                            <th>Pgto</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="entradaBody"></tbody>
+                </table>
+            </div>
+            <div class="fixed-footer">
+                <span>TOTAL ENTRADAS</span>
+                <span id="footerTotalEntrada" class="txt-green">R$ 0.00</span>
+            </div>
+        </div>
+
+        <div class="card table-card">
+            <h2 class="sticky-title">Saídas</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Cliente</th>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                            <th>Ajudante</th>
+                            <th>Pgto</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="saidaBody"></tbody>
+                </table>
+            </div>
+            <div class="fixed-footer">
+                <span>TOTAL SAÍDAS</span>
+                <span id="footerTotalSaida" class="txt-red">R$ 0.00</span>
+            </div>
+        </div>
+    </div>
 </div>
 
+<div id="editModal" class="modal">
+    <div class="modal-content card">
+        <h2>Editar Lançamento</h2>
+        <div id="editForm" class="form-grid">
+            </div>
+        <div class="modal-buttons">
+            <button onclick="closeModal()" class="btn-cancel">Cancelar</button>
+            <button onclick="updateLancamento()" class="btn-save">Salvar Alterações</button>
+        </div>
+    </div>
+</div>
 <script type="module" src="script.js"></script>
 </body>
 </html>
