@@ -2,11 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Adicione isso para conseguir testar no console depois:
-window.db = db;
-window.getDocs = getDocs;
-window.collection = collection;
-
 const firebaseConfig = {
     apiKey: "AIzaSyB7ugVILO8olKtzkCJI_7BRlzY6Qe0-rCM",
     authDomain: "gst-financeira.firebaseapp.com",
@@ -519,3 +514,8 @@ window.salvarEdicao = async () => {
         carregarLancamentos(); // Recarrega a lista
     } catch (e) { console.error("Erro ao salvar:", e); }
 };
+
+window.db = db;
+window.getDocs = getDocs;
+window.collection = collection;
+
