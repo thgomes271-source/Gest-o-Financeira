@@ -384,6 +384,7 @@ function exportPDFAnual() {
   // ===== SALVAR =====
   doc.save("Resumo_Financeiro_Anual.pdf");
 }
+
 window.exportPDFAnual = exportPDFAnual;
 window.exportPDF = exportPDF;
 
