@@ -158,7 +158,7 @@ async function carregarLancamentos() {
         const corFinal = lucroTotal >= 0 ? "#2ecc71" : "#e74c3c";
         elLucro.parentElement.style.color = corFinal;
 
-    } catch (error) {
+     catch (error) {
         // O Catch é obrigatório para evitar o erro de Syntax
         console.error("Erro ao carregar lançamentos:", error);
     }
