@@ -92,25 +92,34 @@ async function carregarLancamentos() {
     if (!auth.currentUser) return;
     
     const mesAtual = monthSelect.value;
+    // Query simplificada para evitar necessidade de índices manuais no Firebase
     const q = query(collection(db, "lancamentos"), 
               where("userId", "==", auth.currentUser.uid), 
               where("mes", "==", mesAtual));
-              orderBy("data", "asc")
 
     try {
         const snap = await getDocs(q);
-        let totE = 0; // Acumulador de Entradas
-        let totS = 0; // Acumulador de Saídas
+        
+        // 1. Criar lista para ordenação
+        let itensParaExibir = [];
+        snap.forEach(d => {
+            itensParaExibir.push({ id: d.id, ...d.data() });
+        });
+
+        // 2. Ordenar por DATA (Antigos primeiro)
+        // Se quiser os mais recentes no topo, use: (b, a)
+        itensParaExibir.sort((a, b) => new Date(a.data) - new Date(b.data));
+
+        let totE = 0; 
+        let totS = 0; 
 
         const entradaBody = document.getElementById("entradaBody");
         const saidaBody = document.getElementById("saidaBody");
         entradaBody.innerHTML = "";
         saidaBody.innerHTML = "";
 
-        snap.forEach(d => {
-            const item = { id: d.id, ...d.data() };
-            
-            // GARANTIA: Converte para número. Se for inválido, vira 0.
+        // 3. Loop na lista já ORDENADA
+        itensParaExibir.forEach(item => {
             const valorNumerico = parseFloat(item.valor) || 0;
 
             const row = `
@@ -129,16 +138,15 @@ async function carregarLancamentos() {
                 </tr>`;
 
             if (item.tipo === "entrada") {
-                totE += valorNumerico; // Soma aqui
+                totE += valorNumerico;
                 entradaBody.innerHTML += row;
             } else {
-                totS += valorNumerico; // Soma aqui
+                totS += valorNumerico;
                 saidaBody.innerHTML += row;
             }
         });
 
         // ATUALIZAÇÃO DOS CARDS (Fora do loop forEach)
-        // Usamos .innerText para garantir que o valor apareça no <span> correto
         document.getElementById("totalEntrada").innerText = totE.toFixed(2);
         document.getElementById("totalSaida").innerText = totS.toFixed(2);
         
@@ -146,15 +154,13 @@ async function carregarLancamentos() {
         const elLucro = document.getElementById("lucro");
         elLucro.innerText = lucroTotal.toFixed(2);
 
-        // Ajuste de cor automático do Lucro
-        elLucro.style.color = lucroTotal >= 0 ? "#2ecc71" : "#e74c3c";
-        elLucro.parentElement.style.color = corLucro;
-
-    } catch (error) {
-        console.error("Erro ao somar cards:", error);
-    }
+        // --- CORREÇÃO DA COR DO R$ ---
+        // Definimos a cor baseada no lucro
+        const corFinal = lucroTotal >= 0 ? "#2ecc71" : "#e74c3c";
+        
+        // Aplicamos a cor no PAI (o H3), assim o "R$" e o "span" mudam juntos
+        elLucro.parentElement.style.color = corFinal;
 }
-
 window.deletar = async (id) => {
     if(confirm("Deseja excluir?")) {
         await deleteDoc(doc(db, "lancamentos", id));
