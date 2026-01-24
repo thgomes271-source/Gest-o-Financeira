@@ -91,69 +91,62 @@ window.addLancamento = async () => {
 async function carregarLancamentos() {
     if (!auth.currentUser) return;
     
-        const mesAtual = monthSelect.value;
-        // Query simplificada para evitar necessidade de índices manuais no Firebase
-        const q = query(collection(db, "lancamentos"), 
-                  where("userId", "==", auth.currentUser.uid), 
-                  where("mes", "==", mesAtual));
+    const mesAtual = monthSelect.value;
     
-        try {
-            const snap = await getDocs(q);
-            
-            // 1. Criar lista para ordenação
-            let itensParaExibir = [];
-            snap.forEach(d => {
-                itensParaExibir.push({ id: d.id, ...d.data() });
-            });
-    
-            // 2. Ordenar por DATA (Antigos primeiro)
-            // Se quiser os mais recentes no topo, use: (b, a)
-            itensParaExibir.sort((a, b) => new Date(a.data) - new Date(b.data));
-    
-            let totE = 0; 
-            let totS = 0; 
-    
-            const entradaBody = document.getElementById("entradaBody");
-            const saidaBody = document.getElementById("saidaBody");
-            entradaBody.innerHTML = "";
-            saidaBody.innerHTML = "";
-    
-            // 3. Loop na lista já ORDENADA
-            itensParaExibir.forEach(item => {
-                const valorNumerico = parseFloat(item.valor) || 0;
-    
-                const row = `
-                    <tr>
-                        <td>${formatarData(item.data)}</td>
-                        <td>${item.cliente || "-"}</td>
-                        <td>${item.descricao || "-"}</td>
-                        <td>R$ ${valorNumerico.toFixed(2)}</td>
-                        <td>R$ ${Number(item.ajudante || 0).toFixed(2)}</td>
-                        <td>${item.pagamento || "-"}</td>
-                        <td><span class="status-${item.status.toLowerCase().replace(" ", "-")}">${item.status}</span></td>
-                        <td>
-                            <button class="btn-edit" onclick="prepararEdicao('${item.id}')"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button class="btn-delete" onclick="deletar('${item.id}')"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>`;
-    
-                if (item.tipo === "entrada") {
-                    totE += valorNumerico;
-                    entradaBody.innerHTML += row;
-                } else {
-                    totS += valorNumerico;
-                    saidaBody.innerHTML += row;
-                       }
-                                         }    );
-            } catch (error) { // <-- Se faltar essa linha, dá o SyntaxError
-        console.error("Erro ao processar lançamentos:", error);
-    } // <-- E precisa fechar a chave aqui
-}
-       
-                };
+    // Query sem o orderBy para evitar erros de índice no Firebase
+    const q = query(collection(db, "lancamentos"), 
+              where("userId", "==", auth.currentUser.uid), 
+              where("mes", "==", mesAtual));
 
+    try {
+        const snap = await getDocs(q);
+        
+        // 1. Criar lista para ordenação
+        let itensParaExibir = [];
+        snap.forEach(d => {
+            itensParaExibir.push({ id: d.id, ...d.data() });
+        });
 
-        // ATUALIZAÇÃO DOS CARDS (Fora do loop forEach)
+        // 2. Ordenar por DATA (Antigos primeiro)
+        itensParaExibir.sort((a, b) => new Date(a.data) - new Date(b.data));
+
+        let totE = 0; 
+        let totS = 0; 
+
+        const entradaBody = document.getElementById("entradaBody");
+        const saidaBody = document.getElementById("saidaBody");
+        entradaBody.innerHTML = "";
+        saidaBody.innerHTML = "";
+
+        // 3. Loop na lista JÁ ORDENADA
+        itensParaExibir.forEach(item => {
+            const valorNumerico = parseFloat(item.valor) || 0;
+
+            const row = `
+                <tr>
+                    <td>${formatarData(item.data)}</td>
+                    <td>${item.cliente || "-"}</td>
+                    <td>${item.descricao || "-"}</td>
+                    <td>R$ ${valorNumerico.toFixed(2)}</td>
+                    <td>R$ ${Number(item.ajudante || 0).toFixed(2)}</td>
+                    <td>${item.pagamento || "-"}</td>
+                    <td><span class="status-${item.status.toLowerCase().replace(" ", "-")}">${item.status}</span></td>
+                    <td>
+                        <button class="btn-edit" onclick="prepararEdicao('${item.id}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-delete" onclick="deletar('${item.id}')"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`;
+
+            if (item.tipo === "entrada") {
+                totE += valorNumerico;
+                entradaBody.innerHTML += row;
+            } else {
+                totS += valorNumerico;
+                saidaBody.innerHTML += row;
+            }
+        });
+
+        // 4. ATUALIZAÇÃO DOS CARDS
         document.getElementById("totalEntrada").innerText = totE.toFixed(2);
         document.getElementById("totalSaida").innerText = totS.toFixed(2);
         
@@ -161,14 +154,15 @@ async function carregarLancamentos() {
         const elLucro = document.getElementById("lucro");
         elLucro.innerText = lucroTotal.toFixed(2);
 
-        // --- CORREÇÃO DA COR DO R$ ---
-        // Definimos a cor baseada no lucro
+        // CORREÇÃO: Aplica a cor no H3 (Pai) para pintar o "R$" também
         const corFinal = lucroTotal >= 0 ? "#2ecc71" : "#e74c3c";
-        
-        // Aplicamos a cor no PAI (o H3), assim o "R$" e o "span" mudam juntos
         elLucro.parentElement.style.color = corFinal;
-        };
- 
+
+    } catch (error) {
+        // O Catch é obrigatório para evitar o erro de Syntax
+        console.error("Erro ao carregar lançamentos:", error);
+    }
+};
 window.deletar = async (id) => {
     if(confirm("Deseja excluir?")) {
         await deleteDoc(doc(db, "lancamentos", id));
