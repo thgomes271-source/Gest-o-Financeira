@@ -145,6 +145,11 @@ async function carregarLancamentos() {
                     saidaBody.innerHTML += row;
                        }
                                          }    );
+            } catch (error) { // <-- Se faltar essa linha, dá o SyntaxError
+        console.error("Erro ao processar lançamentos:", error);
+    } // <-- E precisa fechar a chave aqui
+}
+       
                 };
 
 
@@ -162,12 +167,8 @@ async function carregarLancamentos() {
         
         // Aplicamos a cor no PAI (o H3), assim o "R$" e o "span" mudam juntos
         elLucro.parentElement.style.color = corFinal;
-            };
-} catch (error) { // <-- Se faltar essa linha, dá o SyntaxError
-        console.error("Erro ao processar lançamentos:", error);
-    } // <-- E precisa fechar a chave aqui
-}
-        
+        };
+ 
 window.deletar = async (id) => {
     if(confirm("Deseja excluir?")) {
         await deleteDoc(doc(db, "lancamentos", id));
