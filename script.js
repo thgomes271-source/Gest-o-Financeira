@@ -145,7 +145,7 @@ async function carregarLancamentos() {
                     saidaBody.innerHTML += row;
                        }
                                          }    );
-                }
+                };
 
 
         // ATUALIZAÇÃO DOS CARDS (Fora do loop forEach)
