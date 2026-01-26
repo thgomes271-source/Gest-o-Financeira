@@ -140,11 +140,12 @@ async function carregarLancamentos() {
             if (item.tipo === "entrada") {
                 totE += valorNumerico;
                 entradaBody.innerHTML += row;
-            } else {
+                                        } 
+            else {
                 totS += valorNumerico;
                 saidaBody.innerHTML += row;
-            }
-        });
+                }
+        );
 
         // 4. ATUALIZAÇÃO DOS CARDS
         document.getElementById("totalEntrada").innerText = totE.toFixed(2);
