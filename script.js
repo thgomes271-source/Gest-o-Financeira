@@ -525,5 +525,19 @@ window.salvarEdicao = async () => {
     } catch (e) { console.error("Erro ao salvar:", e); }
 };
 // Expondo as funções para o mundo externo (HTML)
-window.deletar = deletar;
+window.deletar = async (id) => {
+    console.log("Botão de deletar acionado para o ID:", id);
+    
+    if (confirm("Tem certeza que deseja excluir este lançamento?")) {
+        try {
+            // Importante: cheque se 'db', 'doc' e 'deleteDoc' estão importados no topo do arquivo
+            await deleteDoc(doc(db, "lancamentos", id));
+            alert("Lançamento excluído!");
+            carregarLancamentos(); // Chama a função que atualiza a tabela
+        } catch (error) {
+            console.error("Erro ao deletar:", error);
+            alert("Erro ao excluir: " + error.message);
+        }
+    }
+};
 window.prepararEdicao = prepararEdicao;
