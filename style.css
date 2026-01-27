@@ -1,28 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
-/* --- VARIÁVEIS MODERNIZADAS (Paleta Deep Tech) --- */
+/* --- VARIÁVEIS E BASE --- */
 :root {
     --primary: #20B2AA;
-    --primary-dark: #008080;
     --sidebar-bg: linear-gradient(180deg, #20B2AA 0%, #008080 100%);
     --bg-body: #f0f4f7;
     --card-bg: #ffffff;
     --text-main: #1f2937;
     --danger: #e74c3c;
     --success: #2ecc71;
-    --border: #e2e8f0;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; }
 
 body {
     font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
     background: var(--bg-body);
     color: var(--text-main);
     overflow-x: hidden;
 }
 
-/* --- SEÇÃO DE AUTENTICAÇÃO (CORRIGIDA) --- */
+/* --- DESIGN DA TELA DE LOGIN --- */
 #auth {
     display: flex;
     flex-direction: column;
@@ -30,37 +31,61 @@ body {
     justify-content: center;
     height: 100vh;
     width: 100vw;
-    background: var(--sidebar-bg);
+    background: var(--sidebar-bg); /* Usa o degradê turquesa */
     position: fixed;
-    top: 0; left: 0; z-index: 10000;
+    top: 0; left: 0; z-index: 9999;
 }
 
-/* Quando o JS mudar o display para none, ele some de verdade */
-#auth[style*="display: none"] {
-    display: none !important;
-}
+#auth h1 { color: white; margin-bottom: 20px; font-size: 2.5rem; }
+
+#auth h2 { color: #f0f4f7; font-size: 1rem; margin-bottom: 30px; opacity: 0.9; }
 
 .auth-card-content {
     background: white;
     padding: 40px;
     border-radius: 20px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    width: 90%;
+    width: 100%;
     max-width: 380px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
 }
 
-#auth h1 { color: white; margin-bottom: 10px; font-size: 2.2rem; }
-#auth input { padding: 12px; border: 1px solid var(--border); border-radius: 10px; outline: none; }
-#auth button { padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; border: none; transition: 0.3s; }
+#auth input {
+    margin-bottom: 15px;
+    padding: 12px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+}
 
-#btnLogin { background: var(--primary); color: white; }
-#btnLogin:hover { background: var(--primary-dark); transform: translateY(-2px); }
+#auth button {
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
 
-/* --- LAYOUT PRINCIPAL (SIDEBAR + CONTEÚDO) --- */
-.main-wrapper { display: flex; width: 100%; }
+#btnLogin {
+    background: var(--primary);
+    color: white;
+    border: none;
+    margin-bottom: 10px;
+}
+
+#btnLogin:hover { background: #008080; transform: translateY(-2px); }
+
+#btnRegister {
+    background: white;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+}
+
+#btnRegister:hover { background: #f0fdfa; }
+
+/* --- LAYOUT E SIDEBAR --- */
+.main-wrapper { display: flex; min-height: 100vh; }
 
 .sidebar {
     width: 80px;
@@ -69,109 +94,169 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 20px 0;
+    color: white;
     position: fixed;
     height: 100vh;
-    z-index: 999;
 }
 
-.sidebar ul { list-style: none; width: 100%; margin-top: 30px; }
-.sidebar ul li { 
-    padding: 20px 0; 
-    text-align: center; 
-    color: white; 
-    font-size: 20px; 
-    opacity: 0.6; 
-    cursor: pointer;
-    transition: 0.3s;
-}
-.sidebar ul li:hover, .sidebar ul li.active { opacity: 1; background: rgba(255,255,255,0.1); border-left: 4px solid white; }
+.sidebar ul { list-style: none; padding: 0; width: 100%; text-align: center; }
+.sidebar ul li { padding: 20px 0; cursor: pointer; font-size: 20px; opacity: 0.7; }
+.sidebar ul li.active { opacity: 1; border-left: 4px solid white; }
 
-.logout-btn { 
-    margin-top: auto; 
-    background: none; 
-    border: none; 
-    color: white; 
-    font-size: 20px; 
-    cursor: pointer; 
-    padding-bottom: 20px; 
-}
+.content { flex: 1; padding: 25px; margin-left: 80px; }
 
-.content { flex: 1; padding: 30px; margin-left: 80px; min-width: 0; }
-
-/* --- DASHBOARD ELEMENTS --- */
+/* --- HEADER E CARDS --- */
 .dashboard-header {
     display: flex;
-    flex-wrap: wrap;
     justify-content: space-between;
-    gap: 20px;
+    align-items: center;
+    margin-bottom: 25px;
     background: white;
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    padding: 15px 20px;
+    border-radius: 12px;
 }
 
 .summary {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
-.card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; }
-.card-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; }
-.card-icon.blue { background: #3b82f6; }
-.card-icon.red { background: var(--danger); }
-.card-icon.green { background: var(--success); }
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
 
-/* --- GRID E FORMULÁRIO --- */
-.grid-layout { display: grid; grid-template-columns: 350px 1fr; gap: 25px; }
+/* --- FORMULÁRIO (NOVO LANÇAMENTO) --- */
+.grid-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 25px;
+    align-items: start;
+}
 
-.form-section { padding: 25px; position: sticky; top: 20px; }
-.form-grid { display: flex; flex-direction: column; gap: 8px; }
-.form-grid label { font-size: 12px; font-weight: 600; color: #64748b; margin-top: 5px; }
-.form-grid input, .form-grid select { padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
-.btn-add { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+.form-title { text-align: center; margin-top: 0; color: var(--primary); }
 
-/* --- TABELAS --- */
-.table-card { padding: 0 !important; overflow: hidden; border-radius: 15px; }
-.table-wrapper { max-height: 400px; overflow-y: auto; }
+.form-grid { display: flex; flex-direction: column; gap: 4px; }
+.form-grid label { font-size: 11px; font-weight: 600; color: #6b7280; margin-top: 5px; }
+.btn-add { background: var(--primary); border: none; color: white; padding: 12px; margin-top: 15px; cursor: pointer; font-weight: bold; border-radius: 8px; }
+
+/* --- TABELAS ESTILO LISTA (RODRAPÉ E TÍTULO FIXOS) --- */
+.table-card {
+    display: flex;
+    flex-direction: column;
+    height: 450px; /* Altura da lista */
+    padding: 0 !important;
+    overflow: hidden;
+    margin-bottom: 25px;
+    border-bottom: 4px solid var(--primary);
+}
+
+.sticky-title {
+    padding: 15px 20px;
+    margin: 0;
+    background: white;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.table-wrapper {
+    flex: 1;
+    overflow-y: auto; /* Rolagem apenas nos dados */
+    padding: 0 15px;
+}
+
 table { width: 100%; border-collapse: collapse; }
-th { background: #f8fafc; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; color: #64748b; position: sticky; top: 0; }
-td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+th { position: sticky; top: 0; background: #f9fafb; z-index: 1; padding: 12px 8px; font-size: 11px; text-transform: uppercase; color: #9ca3af; text-align: left; }
+td { padding: 12px 8px; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
 
-/* Status Badges */
-[class^="status-"] { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-.status-pago { background: #dcfce7; color: #166534; }
-.status-a-pagar { background: #fee2e2; color: #991b1b; }
-
-/* --- MODAL (EDIÇÃO) --- */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
-.modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 800px; }
-#editModal .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-#editModal button { grid-column: span 2; }
-
-@media (max-width: 1024px) {
-    .grid-layout { grid-template-columns: 1fr; }
-    .sidebar { width: 60px; }
-    .content { margin-left: 60px; }
-}
-/* --- AJUSTE DE SEGURANÇA PARA ÍCONES --- */
-
-/* Se o Font Awesome carregar, ele usa o ícone. 
-   Se falhar, esses símbolos abaixo aparecem no lugar para o botão não ficar vazio. */
-.btn-edit i::before { 
-    content: "\f044"; /* Código do lápis no Font Awesome */
-    font-family: "Font Awesome 6 Free", sans-serif;
+/* Rodapé fixo do Total */
+.fixed-footer {
+    padding: 15px 20px;
+    background: #f8fafc;
+    border-top: 2px solid #edf2f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
 }
 
-.btn-delete i::before { 
-    content: "\f2ed"; /* Código da lixeira no Font Awesome */
-    font-family: "Font Awesome 6 Free", sans-serif;
+/* --- POP-UP DE EDIÇÃO (MODAL) --- */
+/* Container que centraliza o modal na tela */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    overflow: hidden; /* Evita que a página principal role */
 }
 
-/* Fallback radical: se a fonte falhar 100%, usa símbolos de texto padrão */
-@font-face {
-    font-family: "Font Awesome 6 Free";
-    unicode-range: U+f044, U+f2ed;
+/* O "Retângulo Deitado" */
+.modal-content {
+    background-color: white;
+    margin: 10vh auto; /* 10% de distância do topo */
+    padding: 25px;
+    border-radius: 12px;
+    
+    /* Ajuste de Comprimento Horizontal */
+    width: 90%;
+    max-width: 900px; /* Largura grande para parecer um retângulo deitado */
+    
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+/* Organizando os campos em 3 colunas para diminuir a altura */
+/* Estilo específico para o formulário dentro do pop-up */
+#editModal .form-grid {
+    display: grid;
+    /* Aqui forçamos 3 colunas para ele ficar horizontal */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px; 
+    padding: 10px;
+}
+
+/* Ajuste para o botão de salvar ocupar o espaço todo embaixo */
+#editModal button {
+    grid-column: span 3; /* Ocupa as 3 colunas */
+    margin-top: 20px;
+}
+
+/* Deixa o Modal largo para acomodar as 3 colunas */
+#editModal .modal-content {
+    max-width: 850px; /* Largura de retângulo */
+    width: 90%;
+    padding: 30px;
+}
+
+#editModal .form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 campos por linha */
+    gap: 15px;
+}
+
+#editModal button {
+    grid-column: span 4; /* Botão atravessa as 4 colunas */
+}
+
+/* --- UTILITÁRIOS --- */
+.txt-green { color: var(--success); }
+.txt-red { color: var(--danger); }
+input, select { padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; }
+.btn-edit { color: #3b82f6; cursor: pointer; margin-right: 8px; background: none; border: none; font-size: 16px; }
+.btn-delete { color: var(--danger); cursor: pointer; background: none; border: none; font-size: 16px; }
+
+footer {
+    width: 100%;
+    color: #f9fafb;
+    padding: 12px 0;
+    text-align: center;
+    font-size: 11px;
+    border-top: 2px solid #333; /* Uma linhazinha fina para separar do resto */
 }
