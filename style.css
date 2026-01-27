@@ -254,9 +254,9 @@ input, select { padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; }
 
 footer {
     width: 100%;
-    color: #f9fafb;
+    color: #151515;
     padding: 12px 0;
     text-align: center;
     font-size: 11px;
-    border-top: 2px solid #333; /* Uma linhazinha fina para separar do resto */
+    border-top: 2px solid #f2f2f2; /* Uma linhazinha fina para separar do resto */
 }
