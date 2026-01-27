@@ -525,7 +525,7 @@ window.salvarEdicao = async () => {
     } catch (e) { console.error("Erro ao salvar:", e); }
 };
 // Expondo as funções para o mundo externo (HTML)
-//window.deletar = async (id) => {
+window.deletar = async (id) => {
     console.log("Botão de deletar acionado para o ID:", id);
     
     if (confirm("Tem certeza que deseja excluir este lançamento?")) {
