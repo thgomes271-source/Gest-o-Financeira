@@ -300,7 +300,7 @@ window.pdf = {
         docPDF.text("Assinatura do responsável: __________________________________________", 15, y);
 
         docPDF.save(`Relatorio_Financeiro_${mes}.pdf`);
-    },
+    };
 
     anual: async () => {
         const { jsPDF } = window.jspdf;
