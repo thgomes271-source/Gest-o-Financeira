@@ -411,6 +411,7 @@ window.pdf = {
             alert("Erro ao gerar PDF. Verifique o console.");
         }
     }
+};
 // Variável global para saber se estamos editando
 let editId = null;
 
