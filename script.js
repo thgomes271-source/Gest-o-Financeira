@@ -366,7 +366,7 @@ window.pdf = {
     }
 };
 // Variável global para saber se estamos editando
-let editId = null,
+let editId = null;
 
 // 1. Função para carregar os dados no formulário
 window.prepararEdicao = async (id) => {
