@@ -306,108 +306,111 @@ window.pdf = {
         const { jsPDF } = window.jspdf;
         const docPDF = new jsPDF("p", "mm", "a4");
         
-        const q = query(collection(db, "lancamentos"), where("userId", "==", auth.currentUser.uid));
-        const snap = await getDocs(q);
-        
-        const resumo = {};
-        months.forEach(m => resumo[m] = { e: 0, s: 0 });
-// --- AQUI COMEÇA A PARTE NOVA: TOTAIS GERAIS ---
+        try {
+            const q = query(collection(db, "lancamentos"), where("userId", "==", auth.currentUser.uid));
+            const snap = await getDocs(q);
+            
+            const resumo = {};
+            months.forEach(m => resumo[m] = { e: 0, s: 0 });
 
-// Calculamos os totais acumulados do ano todo
-const totalGeralE = Object.values(resumo).reduce((acc, val) => acc + val.e, 0);
-const totalGeralS = Object.values(resumo).reduce((acc, val) => acc + val.s, 0);
-const lucroGeral = totalGeralE - totalGeralS;
+            snap.forEach(d => {
+                const data = d.data();
+                const valor = parseFloat(data.valor) || 0; // Garante que é número
+                if (resumo[data.mes]) {
+                    if (data.tipo === "entrada") resumo[data.mes].e += valor;
+                    else resumo[data.mes].s += valor;
+                }
+            });
 
-// Criando a "Barra" de Resumo no final da tabela
-y += 4; 
-docPDF.setFillColor(230, 230, 230); // Cor de fundo cinza claro
-docPDF.rect(15, y, 180, 12, "F"); // Desenha o retângulo da barra
+            let y = 20;
 
-docPDF.setFont("helvetica", "bold");
-docPDF.setFontSize(10);
-docPDF.setTextColor(0, 0, 0);
+            // Título
+            docPDF.setFont("helvetica", "bold");
+            docPDF.setFontSize(14);
+            docPDF.text("RESUMO FINANCEIRO ANUAL", 105, y, { align: "center" });
+            y += 15;
 
-// Texto dentro da barra
-docPDF.text("TOTAIS GERAIS:", 17, y + 8);
-docPDF.text(`R$ ${totalGeralE.toFixed(2)}`, 70, y + 8);
-docPDF.text(`R$ ${totalGeralS.toFixed(2)}`, 115, y + 8);
+            // Cálculo da Média Mensal
+            let mesesComDados = 0;
+            Object.values(resumo).forEach(v => { if(v.e > 0 || v.s > 0) mesesComDados++; });
+            const somaTotalLucro = Object.values(resumo).reduce((acc, val) => acc + (val.e - val.s), 0);
+            const media = mesesComDados > 0 ? somaTotalLucro / mesesComDados : 0;
 
-// Cor condicional para o lucro (Verde se positivo, Vermelho se negativo)
-const corLucro = lucroGeral >= 0 ? [46, 204, 113] : [231, 76, 60];
-docPDF.setTextColor(corLucro[0], corLucro[1], corLucro[2]);
-docPDF.text(`R$ ${lucroGeral.toFixed(2)}`, 160, y + 8);
+            docPDF.setFontSize(10);
+            docPDF.setFont("helvetica", "normal");
+            docPDF.text(`Média Mensal de Lucro: R$ ${media.toFixed(2)}`, 15, y);
+            y += 10;
 
-// Reseta a cor para o restante do PDF
-docPDF.setTextColor(0, 0, 0);
-y += 15; 
-
-// --- FIM DA PARTE NOVA ---
-        let mesesComDados = 0;
-        let totalAcumulado = 0;
-
-        snap.forEach(d => {
-            const data = d.data();
-            if (resumo[data.mes]) {
-                if (data.tipo === "entrada") resumo[data.mes].e += data.valor;
-                else resumo[data.mes].s += data.valor;
-            }
-        });
-
-        let y = 20;
-
-        // Título [cite: 1]
-        docPDF.setFont("helvetica", "bold");
-        docPDF.setFontSize(14);
-        docPDF.text("RESUMO FINANCEIRO ANUAL", 105, y, { align: "center" });
-        y += 15;
-
-        // Média Mensal 
-        Object.values(resumo).forEach(v => { if(v.e > 0 || v.s > 0) mesesComDados++; });
-        const somaTotal = Object.values(resumo).reduce((acc, val) => acc + (val.e - val.s), 0);
-        const media = mesesComDados > 0 ? somaTotal / mesesComDados : 0;
-
-        docPDF.setFontSize(10);
-        docPDF.setFont("helvetica", "normal");
-        docPDF.text(`Média Mensal: R$ ${media.toFixed(2)}`, 15, y);
-        y += 10;
-
-        // Tabela Anual 
-        docPDF.setFont("helvetica", "bold");
-        docPDF.text("Mês", 15, y);
-        docPDF.text("Entradas", 70, y);
-        docPDF.text("Saídas", 115, y);
-        docPDF.text("Total", 160, y);
-        y += 3;
-        docPDF.line(15, y, 195, y);
-        y += 7;
-
-        docPDF.setFont("helvetica", "normal");
-        months.forEach(m => {
-            const totalMes = resumo[m].e - resumo[m].s;
-            docPDF.text(m, 15, y);
-            docPDF.text(`R$ ${resumo[m].e.toFixed(2)}`, 70, y);
-            docPDF.text(`R$ ${resumo[m].s.toFixed(2)}`, 115, y);
-            docPDF.text(`R$ ${totalMes.toFixed(2)}`, 160, y);
-            y += 6;
-        });
-
-        // Anotações 
-        y += 10;
-        docPDF.setFont("helvetica", "bold");
-        docPDF.text("ANOTAÇÕES", 15, y);
-        y += 5;
-        for (let i = 0; i < 4; i++) {
-            y += 8;
+            // Cabeçalho da Tabela
+            docPDF.setFont("helvetica", "bold");
+            docPDF.text("Mês", 15, y);
+            docPDF.text("Entradas", 70, y);
+            docPDF.text("Saídas", 115, y);
+            docPDF.text("Total", 160, y);
+            y += 3;
             docPDF.line(15, y, 195, y);
+            y += 7;
+
+            // Linhas da Tabela
+            docPDF.setFont("helvetica", "normal");
+            months.forEach(m => {
+                const totalMes = resumo[m].e - resumo[m].s;
+                docPDF.text(m, 15, y);
+                docPDF.text(`R$ ${resumo[m].e.toFixed(2)}`, 70, y);
+                docPDF.text(`R$ ${resumo[m].s.toFixed(2)}`, 115, y);
+                
+                // Cor individual do total do mês
+                if(totalMes < 0) docPDF.setTextColor(231, 76, 60); // Vermelho
+                else docPDF.setTextColor(0, 0, 0);
+                
+                docPDF.text(`R$ ${totalMes.toFixed(2)}`, 160, y);
+                docPDF.setTextColor(0, 0, 0); // Volta para preto
+                y += 6;
+            });
+
+            // --- BARRA DE TOTAIS GERAIS NO FINAL ---
+            const totalGeralE = Object.values(resumo).reduce((acc, val) => acc + val.e, 0);
+            const totalGeralS = Object.values(resumo).reduce((acc, val) => acc + val.s, 0);
+            const lucroGeral = totalGeralE - totalGeralS;
+
+            y += 4;
+            docPDF.setFillColor(240, 240, 240); // Fundo cinza claro
+            docPDF.rect(15, y, 180, 12, "F"); 
+
+            docPDF.setFont("helvetica", "bold");
+            docPDF.text("TOTAIS GERAIS:", 17, y + 8);
+            docPDF.text(`R$ ${totalGeralE.toFixed(2)}`, 70, y + 8);
+            docPDF.text(`R$ ${totalGeralS.toFixed(2)}`, 115, y + 8);
+
+            // Cor do Lucro Geral
+            if(lucroGeral >= 0) docPDF.setTextColor(46, 204, 113); // Verde
+            else docPDF.setTextColor(231, 76, 60); // Vermelho
+            docPDF.text(`R$ ${lucroGeral.toFixed(2)}`, 160, y + 8);
+
+            docPDF.setTextColor(0, 0, 0); // Reset
+            y += 20;
+
+            // Anotações
+            docPDF.setFontSize(10);
+            docPDF.setFont("helvetica", "bold");
+            docPDF.text("ANOTAÇÕES", 15, y);
+            y += 5;
+            for (let i = 0; i < 3; i++) {
+                y += 8;
+                docPDF.line(15, y, 195, y);
+            }
+
+            // Assinatura
+            y += 20;
+            docPDF.text("Assinatura do responsável: __________________________________________", 15, y);
+
+            docPDF.save("Resumo_Financeiro_Anual.pdf");
+
+        } catch (error) {
+            console.error("Erro ao gerar PDF Anual:", error);
+            alert("Erro ao gerar PDF. Verifique o console.");
         }
-
-        // Assinatura 
-        y += 20;
-        docPDF.text("Assinatura do responsável: __________________________________________", 15, y);
-
-        docPDF.save("Resumo_Financeiro_Anual.pdf");
     }
-};
 // Variável global para saber se estamos editando
 let editId = null;
 
