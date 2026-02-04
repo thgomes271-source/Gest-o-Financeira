@@ -311,7 +311,37 @@ window.pdf = {
         
         const resumo = {};
         months.forEach(m => resumo[m] = { e: 0, s: 0 });
+// --- AQUI COMEÇA A PARTE NOVA: TOTAIS GERAIS ---
 
+// Calculamos os totais acumulados do ano todo
+const totalGeralE = Object.values(resumo).reduce((acc, val) => acc + val.e, 0);
+const totalGeralS = Object.values(resumo).reduce((acc, val) => acc + val.s, 0);
+const lucroGeral = totalGeralE - totalGeralS;
+
+// Criando a "Barra" de Resumo no final da tabela
+y += 4; 
+docPDF.setFillColor(230, 230, 230); // Cor de fundo cinza claro
+docPDF.rect(15, y, 180, 12, "F"); // Desenha o retângulo da barra
+
+docPDF.setFont("helvetica", "bold");
+docPDF.setFontSize(10);
+docPDF.setTextColor(0, 0, 0);
+
+// Texto dentro da barra
+docPDF.text("TOTAIS GERAIS:", 17, y + 8);
+docPDF.text(`R$ ${totalGeralE.toFixed(2)}`, 70, y + 8);
+docPDF.text(`R$ ${totalGeralS.toFixed(2)}`, 115, y + 8);
+
+// Cor condicional para o lucro (Verde se positivo, Vermelho se negativo)
+const corLucro = lucroGeral >= 0 ? [46, 204, 113] : [231, 76, 60];
+docPDF.setTextColor(corLucro[0], corLucro[1], corLucro[2]);
+docPDF.text(`R$ ${lucroGeral.toFixed(2)}`, 160, y + 8);
+
+// Reseta a cor para o restante do PDF
+docPDF.setTextColor(0, 0, 0);
+y += 15; 
+
+// --- FIM DA PARTE NOVA ---
         let mesesComDados = 0;
         let totalAcumulado = 0;
 
