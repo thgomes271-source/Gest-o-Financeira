@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Gest Financial</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -38,10 +39,7 @@
             <button id="btnRegister">Cadastrar</button>
         </div>
 </section>
-        </section>
-
-        <section id="app" style="display:none;">
-            
+     <section id="app" style="display:none;">
             <header class="dashboard-header">
                 <div class="month-controls">
                     <select id="monthSelect"></select>
@@ -63,48 +61,49 @@
                     <button onclick="pdf.anual()"><i class="fa-solid fa-file-pdf"></i> Anual</button>
                 </div>
             </header>
-
-            <section class="summary">
-                <div class="card">
-                    <div class="card-icon blue"><i class="fa-solid fa-wallet"></i></div>
+                <section class="summary"> <!--Cards-->
+                    <div class="card"> <!--Card faturamento-->
+                    <div class="card-icon blue"><i class="fa-solid fa-wallet"></i>
+                        </div>
                     <div>
                         <p>Faturamento</p>
                         <h3>R$ <span id="totalEntrada">0.00</span></h3>
                     </div>
-                </div>
-                <div class="card">
+                        </div>
+                    <div class="card"><!--Card Despesas-->
                     <div class="card-icon red"><i class="fa-solid fa-hand-holding-dollar"></i></div>
                     <div>
                         <p>Despesas</p>
                         <h3>R$ <span id="totalSaida">0.00</span></h3>
                     </div>
-                </div>
-                <div class="card">
+                        </div>
+                    <div class="card"> <!--Card Lucro Líquido-->
                     <div class="card-icon green"><i class="fa-solid fa-chart-pie"></i></div>
                     <div>
                         <p>Lucro Líquido</p>
                         <h3>R$ <span id="lucro">0.00</span></h3>
                     </div>
-                </div>
+                        </div>
             </section>
 
-            <div class="grid-layout">
-    <section class="form-section card">
-        <h2 class="form-title">Novo Lançamento</h2>
-        <div class="form-grid">
-            <label>Data</label>
-            <input type="date" id="data">
+            <div class="grid-layout"> <!--Lançamentos-->
+                <section class="form-section card">
+                <h2 class="form-title">Novo Lançamento</h2>
+                <div class="form-grid">
+
+                <label>Data</label>
+                <input type="date" id="data">
+
+                <label>Cliente</label>
+                <input type="text" id="cliente" placeholder="Origem">
             
-            <label>Cliente</label>
-            <input type="text" id="cliente" placeholder="Origem">
+                <label>Descrição</label>
+                <input type="text" id="descricao" placeholder="O que é?">
             
-            <label>Descrição</label>
-            <input type="text" id="descricao" placeholder="O que é?">
+                <label>Valor</label>
+                <input type="number" id="valor" placeholder="0.00">
             
-            <label>Valor</label>
-            <input type="number" id="valor" placeholder="0.00">
-            
-            <div class="inline-group">
+                <div class="inline-group">
                 <label>Tipo</label>
                 <select id="tipo">
                     <option value="entrada">Entrada</option>
@@ -134,7 +133,7 @@
     </section>
 
     <div class="tables-container">
-        <div class="card table-card">
+        <div class="card table-card"> <!--Tabela de Entrada-->
             <h2 class="sticky-title">Entradas</h2>
             <div class="table-wrapper">
                 <table>
@@ -155,7 +154,7 @@
             </div>
         </div>
 
-        <div class="card table-card">
+        <div class="card table-card"> <!--Tabela de Saída-->
             <h2 class="sticky-title">Saídas</h2>
             <div class="table-wrapper">
                 <table>
@@ -178,7 +177,7 @@
     </div>
 </div>
 
-<div id="editModal" class="modal">
+<div id="editModal" class="modal"> <!--Modal de Edição-->
     <div class="modal-content">
         <div class="modal-header">
             <h2>Editar Lançamento</h2>
