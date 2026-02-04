@@ -399,7 +399,7 @@ window.prepararEdicao = async (id) => {
     } catch (e) {
         console.error("Erro ao carregar edição:", e);
     }
-},
+};
 
 // 2. Modificar a função addLancamento para suportar atualização
 window.addLancamento = async () => {
