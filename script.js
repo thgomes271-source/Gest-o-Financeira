@@ -98,18 +98,24 @@ async function carregarLancamentos() {
 
     try {
         const snap = await getDocs(q);
-        let totE = 0; // Acumulador de Entradas
-        let totS = 0; // Acumulador de Saídas
+        let totE = 0;
+        let totS = 0;
 
         const entradaBody = document.getElementById("entradaBody");
         const saidaBody = document.getElementById("saidaBody");
         entradaBody.innerHTML = "";
         saidaBody.innerHTML = "";
 
-        snap.forEach(d => {
-            const item = { id: d.id, ...d.data() };
-            
-            // GARANTIA: Converte para número. Se for inválido, vira 0.
+        // --- MUDANÇA AQUI: Transformar em Array e Ordenar ---
+        const listaOrdenada = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        
+        // Ordena da data mais recente para a mais antiga
+        listaOrdenada.sort((a, b) => {
+            return new Date(b.data) - new Date(a.data);
+        });
+
+        // Agora percorremos a lista já organizada
+        listaOrdenada.forEach(item => {
             const valorNumerico = parseFloat(item.valor) || 0;
 
             const row = `
@@ -128,14 +134,13 @@ async function carregarLancamentos() {
                 </tr>`;
 
             if (item.tipo === "entrada") {
-                totE += valorNumerico; // Soma aqui
+                totE += valorNumerico;
                 entradaBody.innerHTML += row;
             } else {
-                totS += valorNumerico; // Soma aqui
+                totS += valorNumerico;
                 saidaBody.innerHTML += row;
             }
         });
-
         // ATUALIZAÇÃO DOS CARDS (Fora do loop forEach)
         // Usamos .innerText para garantir que o valor apareça no <span> correto
         document.getElementById("totalEntrada").innerText = totE.toFixed(2);
