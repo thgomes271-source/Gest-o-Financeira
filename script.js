@@ -26,14 +26,20 @@ const monthSelect = document.getElementById("monthSelect");
 
 // --- CONTROLE DO MODAL DE CADASTRO ---
 // 1. Abrir o modal ao clicar no botão de cadastro da tela inicial
-document.getElementById("btnRegister").addEventListener("click", (e) => {
-    e.preventDefault(); // Impede o comportamento padrão
-    modal.style.display = "flex"; // Abre o seu modal novo
-});
+// Capturando os novos elementos
+const btnAbrirModalReg = document.getElementById('btnRegister');
+const modalCadastro = document.getElementById('modalCadastro');
+const btnFecharModalReg = document.getElementById('btnFechar');
 
-// 2. Fechar o modal (adicione o ID 'btnFechar' no seu 'X' lá no HTML)
-document.getElementById("btnFechar").onclick = () => {
-    modal.style.display = "none";
+// Abrir o modal ao clicar em "Cadastrar" na tela de login
+btnAbrirModalReg.onclick = (e) => {
+    e.preventDefault();
+    modalCadastro.style.display = 'block';
+};
+
+// Fechar o modal no "X"
+btnFecharModalReg.onclick = () => {
+    modalCadastro.style.display = 'none';
 };
 
 document.getElementById("btnLogin").addEventListener("click", async () => {
