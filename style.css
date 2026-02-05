@@ -186,7 +186,7 @@ td { padding: 12px 8px; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
 /* --- POP-UP DE EDIÇÃO (MODAL) --- */
 /* Container que centraliza o modal na tela */
 .modal {
-    display: none;
+    display: flex;
     position: fixed;
     z-index: 9999;
     left: 0;
