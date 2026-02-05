@@ -29,6 +29,7 @@ const monthSelect = document.getElementById("monthSelect");
 // Capturando os novos elementos
 const btnAbrirModalReg = document.getElementById('btnRegister');
 const modalCadastro = document.getElementById('modalCadastro');
+console.log("Botão encontrado:", btnAbrirModalReg); console.log("Modal encontrado:", modalCadastro);
 const btnFecharModalReg = document.getElementById('btnFechar');
 
 // Abrir o modal ao clicar em "Cadastrar" na tela de login
